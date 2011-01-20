@@ -218,9 +218,10 @@ class Client(netshared.NetworkEndpoint):
         status of the class instance will not changed to  `DISCONNECTED`
         until .update() is called.
         '''
-        self._connection.sendMessage(
-            self.message_factory.getByName('Disconnected')())
-        self._disconnecting = True
+        if self._connection is not None:
+            self._connection.sendMessage(
+                self.message_factory.getByName('Disconnected')())
+            self._disconnecting = True
 
 
     def sendMessage(self, message):
