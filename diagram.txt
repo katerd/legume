@@ -1,0 +1,8 @@
+			NetShared
+			    |
+		|------------------------|
+	     Server		       Client
+		|			 |
+		|			 |
+		\/			 \/
+	     ServerPeer------------->Connection

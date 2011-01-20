@@ -1,0 +1,14 @@
+[ ] Add metrics to connections:
+
+	.latency - DONE
+	.out_buffer_bytes - DONE
+	.pending_acks
+	.in_bytes
+	.out_bytes
+	.in_packets
+	.out_packets
+	.keepalive_count
+
+	.reorder_queue
+
+[ ] Add TestServerMetricsInterface
