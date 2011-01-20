@@ -23,5 +23,6 @@ class ServiceLocator(object):
             return d.klass(**kwargs)
 
 service = ServiceLocator()
+add = service.add
 Service = service.resolve
 

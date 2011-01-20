@@ -49,11 +49,11 @@ __docformat__ = 'restructuredtext'
 
 import messages
 import netshared
-import connection
+from legume.servicelocator import Service
 import logging
 from legume.nevent import Event, NEventError
 
-from legume.exceptions import ClientError
+from legume.exceptions import ClientError, ArgumentError
 
 class Client(netshared.NetworkEndpoint):
 
@@ -188,14 +188,26 @@ class Client(netshared.NetworkEndpoint):
         if self.isActive():
             raise ClientError(
                 'Client cannot reconnect in a CONNECTING or CONNECTED state')
-        if not netshared.isValidPort(address[1]):
-            raise ArgumentError(
-                '%s is not a valid port' % str(address[1]))
-        self._createSocket()
-        self._connectSocket(address)
-        self._address = address
+        if len(address) != 2:
+            raise ArgumentError, \
+                'Expected parameter is (host, port) tuple'
 
-        self._connection = connection.Connection(self)
+        host = address[0]
+
+        try:
+            port = int(address[1])
+        except ValueError:
+            raise ArgumentError, \
+                '%s is not a valid port' % address[1]
+        if port > 65535 or port < 1:
+            raise ArgumentError, \
+                '%s is not a valid port' % port
+
+        self._createSocket()
+        self._connectSocket((host, port))
+        self._address = (host, port)
+
+        self._connection = Service('Connection', {'parent':self})
 
         self._connection.OnConnectRequestAccepted += \
             self._Connection_OnConnectRequestAccepted

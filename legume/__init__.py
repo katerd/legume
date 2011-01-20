@@ -4,3 +4,7 @@
 __docformat__ = 'restructuredtext'
 
 import udp
+import servicelocator
+from udp.connection import Connection
+
+servicelocator.add('Connection', Connection)

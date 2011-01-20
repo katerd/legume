@@ -44,7 +44,7 @@ class Connection(object):
 
     _log = logging.getLogger('legume.Connection')
 
-    def __init__(self, parent, message_factory=None):
+    def __init__(self, parent=None, message_factory=None):
         if message_factory is None:
             self.message_factory = parent.message_factory
         else:
