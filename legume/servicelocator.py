@@ -1,3 +1,8 @@
+# legume. Copyright 2009-2011 Dale Reidy. All rights reserved.
+# See LICENSE for details.
+
+__docformat__ = 'restructuredtext'
+
 class _ServiceRegistration(object):
     def __init__(self, name, klass, kwargs={}):
         self.name = name

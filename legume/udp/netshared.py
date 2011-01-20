@@ -8,7 +8,6 @@ import errno
 from legume.exceptions import *
 
 USHRT_MAX = 65535
-
 DEFAULT_TIMEOUT = float(10) # default timeout in seconds
 PROTOCOL_VERSION = 4
 

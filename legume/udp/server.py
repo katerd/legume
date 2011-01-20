@@ -1,4 +1,4 @@
-# legume. Copyright 2009 Dale Reidy. All rights reserved.
+# legume. Copyright 2009-2011 Dale Reidy. All rights reserved.
 # See LICENSE for details.
 
 __docformat__ = 'restructuredtext'
@@ -6,9 +6,8 @@ __docformat__ = 'restructuredtext'
 import logging
 import netshared
 import messages
-import serverpeer
 from legume.nevent import Event, NEventError
-
+from legume.servicelocator import Service
 
 class Server(netshared.NetworkEndpoint):
     '''
@@ -16,7 +15,6 @@ class Server(netshared.NetworkEndpoint):
     call listen() with a network address then periodically call update()
     to ensure data is kept flowing and connects/disconnects are handled.
     '''
-
     _log = logging.getLogger('legume.server')
 
     def __init__(self, message_factory=messages.message_factory):
@@ -27,7 +25,6 @@ class Server(netshared.NetworkEndpoint):
 
             mf = legume.udp.messages.MessageFactory()
             server = legume.udp.Server(message_factory=pf)
-
         '''
         netshared.NetworkEndpoint.__init__(self, message_factory)
         self._peers = {}
@@ -41,14 +38,12 @@ class Server(netshared.NetworkEndpoint):
 
     # ------------- Properties -------------
 
-
     @property
     def peercount(self):
         '''Number of connected peers.'''
         return sum(
             1 for peer in self._peers.itervalues()
             if peer.connected)
-
 
     @property
     def peers(self):
@@ -57,9 +52,7 @@ class Server(netshared.NetworkEndpoint):
             peer for peer in self._peers.itervalues()
             if peer.connected]
 
-
     # ------------- Public Methods -------------
-
 
     def disconnect(self, peer_address):
         '''Disconnect a peer by specifying their address.
@@ -69,17 +62,14 @@ class Server(netshared.NetworkEndpoint):
         '''
         self.getPeerByAddress(peer_address).disconnect()
 
-
     def disconnectAll(self):
         '''Disconnect all connected clients'''
         for peer in self._peers.itervalues():
             peer.disconnect()
 
-
     def getPeerByAddress(self, peer_address):
         '''Obtain a ServerPeer instance by specifying the peer's address'''
         return self._peers[peer_address]
-
 
     def listen(self, address):
         '''Begin listening for incoming connections.
@@ -98,7 +88,6 @@ class Server(netshared.NetworkEndpoint):
         self._address = address
         self._state = self.LISTENING
 
-
     def update(self):
         '''Pumps buffers and dispatches events. Call regularly to ensure
         buffers do not overfill or connections time-out::
@@ -110,9 +99,7 @@ class Server(netshared.NetworkEndpoint):
                 server.update()
                 # Other update tasks here..
                 time.sleep(0.001)
-
         '''
-
         self.doRead(self._onSocketData)
 
         for peer in self._peers.itervalues():
@@ -123,7 +110,6 @@ class Server(netshared.NetworkEndpoint):
 
         self._removePeers()
 
-
     def sendMessageToAll(self, message):
         '''Send a non-reliable packet to all connected peers.
         packet is an instance of a legume.message.BaseMessage subclass::
@@ -132,11 +118,9 @@ class Server(netshared.NetworkEndpoint):
             msg.chat_message.value = "Hello!"
             msg.sender.value = "@X3"
             server.sendMessageToAll(msg_packet)
-
         '''
         for peer in self._peers.itervalues():
             peer.sendMessage(message)
-
 
     def sendReliableMessageToAll(self, message):
         '''Send a reliable message to all connected peers. message is an
@@ -145,9 +129,7 @@ class Server(netshared.NetworkEndpoint):
         for peer in self._peers.itervalues():
             peer.sendReliableMessage(message)
 
-
     # ------------- Private Methods -------------
-
 
     def _onSocketData(self, data, addr):
         self._log.debug(
@@ -155,7 +137,7 @@ class Server(netshared.NetworkEndpoint):
             (str(len(data)), str(addr)))
 
         if not addr in self._peers:
-            new_peer = serverpeer.Peer(self, addr)
+            new_peer = Service('Peer', {'parent':self, 'address':addr})
             self._peers[addr] = new_peer
 
             new_peer.OnDisconnect += self._Peer_OnDisconnect
@@ -165,15 +147,12 @@ class Server(netshared.NetworkEndpoint):
 
         self._peers[addr].processInboundPacket(data)
 
-
     def _removePeers(self):
         for dead_peer in self._dead_peers:
             del self._peers[dead_peer.address]
         self._dead_peers = []
 
-
     # ------------- Events -------------
-
 
     def _getOnMessage(self):
         return self._OnMessage
@@ -185,7 +164,6 @@ class Server(netshared.NetworkEndpoint):
     OnMessage = property(
         _getOnMessage, _setOnMessage)
 
-
     def _getOnConnectRequest(self):
         return self._OnConnectRequest
     def _setOnConnectRequest(self, event):
@@ -195,7 +173,6 @@ class Server(netshared.NetworkEndpoint):
             raise NEventError, 'Event must subclass nevent.Event'
     OnConnectRequest = property(
         _getOnConnectRequest, _setOnConnectRequest)
-
 
     def _getOnError(self):
         return self._OnError
@@ -207,7 +184,6 @@ class Server(netshared.NetworkEndpoint):
     OnError = property(
         _getOnError, _setOnError)
 
-
     def _getOnDisconnect(self):
         return self._OnDisconnect
     def _setOnDisconnect(self, event):
@@ -218,24 +194,17 @@ class Server(netshared.NetworkEndpoint):
     OnDisconnect = property(
         _getOnDisconnect, _setOnDisconnect)
 
-
     # ------------- Peer Event Handlers -------------
-
 
     def _Peer_OnConnectRequest(self, peer, event_args):
         return self.OnConnectRequest(peer, event_args)
-
 
     def _Peer_OnError(self, peer, error_string):
         self._dead_peers.append(peer)
         self.OnError(peer, error_string)
 
-
     def _Peer_OnMessage(self, peer, message):
         self.OnMessage(peer, message)
 
-
     def _Peer_OnDisconnect(self, peer, event_args):
         self.OnDisconnect(peer, None)
-
-

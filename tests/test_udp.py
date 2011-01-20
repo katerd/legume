@@ -1,4 +1,5 @@
-# legume. Copyright 2009 Dale Reidy. All rights reserved. See LICENSE for details.
+# legume. Copyright 2009-2011 Dale Reidy. All rights reserved.
+# See LICENSE for details.
 
 import sys
 sys.path.append('..')
@@ -52,7 +53,7 @@ class TestClientState(unittest.TestCase):
     def testClientBadPortException(self):
         def willfail():
             self.client.connect(('localhost', 'notaservice')) # Errored port number
-        self.assertRaises(legume.udp.client.ClientError, willfail)
+        self.assertRaises(legume.exceptions.ArgumentError, willfail)
 
     def testClientConnectingState(self):
         self.client.connect(('localhost', getRandomPort()))

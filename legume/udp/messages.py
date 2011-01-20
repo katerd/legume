@@ -4,7 +4,6 @@
 __docformat__ = 'restructuredtext'
 
 '''
-
 A message packet class is a subclass of legume.udp.messages.BaseMessage with two
 class attributes defined:
 
@@ -52,10 +51,8 @@ How to use this packet definition::
 
     # send the packet to the server
     client.sendPacket(cm)
-
 '''
 
-import sys
 import struct
 import logging
 import string
@@ -79,9 +76,7 @@ class MessageValue(object):
         Typename can be one of 'int', 'string', 'float' or 'bool'.
         Value must be of the specified type.
         max_length is only required for string values.
-
         '''
-
         if not isValidIdentifier(name):
             raise MessageError, '%s is not a valid name' % name
 
@@ -104,7 +99,6 @@ class MessageValue(object):
 
         if message is not None and message.UseDefaultValues:
             self.setDefaultValue()
-
 
     def setDefaultValue(self):
         if self.typename == 'int':
@@ -200,7 +194,6 @@ class MessageValue(object):
         else:
             raise MessageError, ('Cant get read from byteBuffer for type "%s"' %
                 self.typename)
-
 
 class BaseMessage(object):
     '''
@@ -325,7 +318,6 @@ class BaseMessage(object):
         '''
         for name in self.value_names:
             self.__dict__[name].readFromByteBuffer(byteBuffer)
-
 
 class ConnectRequest(BaseMessage):
     '''
@@ -469,7 +461,6 @@ class MessageFactory(object):
         True
         '''
         return isinstance(message_instance, self.getByName(message_name))
-
 
 messages = {
     'ConnectRequest':ConnectRequest,

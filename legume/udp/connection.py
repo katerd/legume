@@ -5,9 +5,9 @@ __docformat__ = 'restructuredtext'
 
 import struct
 import random
-import legume.timing as time
 import logging
 import netshared
+import legume.timing as time
 from legume.nevent import Event
 from legume.pingsampler import PingSampler
 from legume.bitfield import bitfield
@@ -123,9 +123,7 @@ class Connection(object):
     def keepalive_count(self):
         return self._keepalive_count
 
-
     # ------------- Public Methods -------------
-
 
     def processInboundPacket(self, data):
         self._in_packets += 1
@@ -234,7 +232,6 @@ class Connection(object):
                 self._log.info('Connection has timed out')
                 self.OnError(self, 'Connection timed out')
 
-
     def sendMessage(self, message, ordered=False, reliable=False):
         '''
         Send a message and specify any options for the send method used.
@@ -274,14 +271,12 @@ class Connection(object):
 
         return total_length
 
-
     def sendReliableMessage(self, message):
         '''
         Send a message that is guaranteed to be delivered.
         message is an instance of a subclass of packets.BasePacket
         '''
         self.sendMessage(message, False, True)
-
 
     def sendInOrderMessage(self, message):
         '''
@@ -291,20 +286,16 @@ class Connection(object):
         '''
         self.sendMessage(message, True)
 
-
     def hasOutgoingPackets(self):
         '''
         Returns whether this buffer has any packets waiting to be sent.
         '''
         return len(self._outgoing) > 0
 
-
     # ------------- Private Methods -------------
-
 
     def _onSocketData(self, data, addr):
         self._processInboundPacket(data)
-
 
     def _sendKeepAlive(self):
         self._keep_alive_message_id += 1
@@ -318,7 +309,6 @@ class Connection(object):
         self._keep_alive_send_timestamp = time.time()
         self._keepalive_count += 1
 
-
     def _sendPing(self):
         self._ping_id += 1
         if (self._ping_id > netshared.USHRT_MAX):
@@ -329,12 +319,10 @@ class Connection(object):
         self.sendMessage(ping)
         self._ping_send_timestamp = time.time()
 
-
     def _sendPong(self, pingID):
         pong = self.message_factory.getByName('Pong')()
         pong.id.value = pingID
         self.sendMessage(pong)
-
 
     def _processMessageAck(self, message_id):
         for m in self._outgoing:
@@ -376,7 +364,6 @@ class Connection(object):
 
         return parsed_messages
 
-
     def _processInboundPacket(self, packet_bytes):
         '''
         Pass raw udp packet data to this method.
@@ -400,7 +387,6 @@ class Connection(object):
 
         return len(messages_to_read)
 
-
     def _update(self, sock, address):
         '''
         Update this buffer by sending any messages in the output lists
@@ -415,7 +401,6 @@ class Connection(object):
 
         return read_packets
 
-
     def _addMessageBytesToOutputList(self, message_id,
                                      message_bytes, require_ack=False):
         if len(message_bytes) > self.MTU:
@@ -425,14 +410,12 @@ class Connection(object):
             self._outgoing.append(
                 OutgoingMessage(message_id, message_bytes, require_ack))
 
-
     def _canReadInOrderMessage(self, sequence_number):
         '''
         Can the in-order message with the specified sequence number be
         insert into the .incoming list for processing?
         '''
         return self._incoming_ordered_sequence_number == (sequence_number+1)
-
 
     def _createPacket(self):
         packet_size = 0
@@ -475,7 +458,6 @@ class Connection(object):
 
         return packet_bytes
 
-
     def _doRead(self):
         unheld_messages = []
         for held_message in self._incoming_out_of_sequence_messages:
@@ -506,7 +488,6 @@ class Connection(object):
 
         return read_messages
 
-
     def _doWrite(self, sock, address):
         while True:
             packet = self._createPacket()
@@ -524,18 +505,15 @@ class Connection(object):
 
             self._log.info('Sent UDP packet %d bytes in length' % len(packet))
 
-
     def _getMessageTransportHeader(self, message_id,
                                    sequence_number, message_flags):
         return struct.pack(
             '!'+self.MESSAGE_TRANSPORT_HEADER,
             message_id, sequence_number, int(message_flags))
 
-
     def _getNewOutgoingInOrderSequenceNumber(self):
         self._outgoing_ordered_sequence_number += 1
         return self._outgoing_ordered_sequence_number
-
 
     def _getNewOutgoingMessageNumber(self):
         '''
@@ -546,18 +524,15 @@ class Connection(object):
         self._outgoing_message_id += 1
         return self._outgoing_message_id
 
-
     def _holdMessage(self, message):
         self._incoming_out_of_sequence_messages.append(message)
         self._recent_message_ids.append(message.message_id)
-
 
     def _insertMessage(self, message):
         self._incoming_messages.append(message)
         self._recent_message_ids.append(message.message_id)
         if message.is_ordered:
             self._incoming_ordered_sequence_number = message.sequence_number
-
 
     def _truncateRecentMessageList(self):
         '''

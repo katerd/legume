@@ -3,7 +3,6 @@
 
 __docformat__ = 'restructuredtext'
 
-
 class PingSampler(object):
     def __init__(self, num_samples=4):
         self._num_samples = num_samples

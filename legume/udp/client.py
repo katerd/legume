@@ -44,15 +44,13 @@ the fields `value` attribute.
     `Client.OnError` event would fire.
 
 '''
-
 __docformat__ = 'restructuredtext'
 
+import logging
 import messages
 import netshared
 from legume.servicelocator import Service
-import logging
 from legume.nevent import Event, NEventError
-
 from legume.exceptions import ClientError, ArgumentError
 
 class Client(netshared.NetworkEndpoint):
@@ -84,9 +82,7 @@ class Client(netshared.NetworkEndpoint):
         self._OnError = Event()
         self._OnDisconnect = Event()
 
-
     # ------------- Properties -------------
-
 
     @property
     def connected(self):
@@ -208,7 +204,6 @@ class Client(netshared.NetworkEndpoint):
         self._address = (host, port)
 
         self._connection = Service('Connection', {'parent':self})
-
         self._connection.OnConnectRequestAccepted += \
             self._Connection_OnConnectRequestAccepted
         self._connection.OnConnectRequestRejected += \
@@ -222,7 +217,6 @@ class Client(netshared.NetworkEndpoint):
         self._sendReliableMessage(request_message)
         self._state = self.CONNECTING
 
-
     def disconnect(self):
         '''
         Gracefully disconnect from the host. A disconnection packet is
@@ -234,7 +228,6 @@ class Client(netshared.NetworkEndpoint):
             self._connection.sendMessage(
                 self.message_factory.getByName('Disconnected')())
             self._disconnecting = True
-
 
     def sendMessage(self, message):
         '''
@@ -251,7 +244,6 @@ class Client(netshared.NetworkEndpoint):
         else:
             raise ClientError, 'Cannot send packet - not connected'
 
-
     def sendReliableMessage(self, message):
         '''
         Send a message to the server with guaranteed delivery. If the
@@ -267,7 +259,6 @@ class Client(netshared.NetworkEndpoint):
         else:
             raise ClientError, 'Cannot send message - not connected'
 
-
     def update(self):
         '''
         This method should be called frequently to process incoming data,
@@ -281,17 +272,13 @@ class Client(netshared.NetworkEndpoint):
         if self._disconnecting and not self._connection.hasOutgoingPackets():
             self._disconnect(raise_event=False)
 
-
     # ------------- Private Methods -------------
-
 
     def _sendMessage(self, message):
         return self._connection.sendMessage(message)
 
-
     def _sendReliableMessage(self, message):
         return self._connection.sendReliableMessage(message)
-
 
     def _disconnect(self, raise_event=True):
         self._state = self.DISCONNECTED
@@ -300,9 +287,7 @@ class Client(netshared.NetworkEndpoint):
         if raise_event:
             self.OnDisconnect(self, None)
 
-
     # ------------- Events -------------
-
 
     def _getOnConnectRequestRejected(self):
         return self._OnConnectRequestRejected
@@ -354,9 +339,7 @@ class Client(netshared.NetworkEndpoint):
     OnDisconnect = property(
         _getOnDisconnect, _setOnDisconnect)
 
-
     # ------------- Connection Event Handlers -------------
-
 
     def _Connection_OnConnectRequestRejected(self, sender, event_args):
         self._state = self.ERRORED
@@ -377,4 +360,3 @@ class Client(netshared.NetworkEndpoint):
 
     def _Connection_OnDisconnect(self, sender, event_args):
         self._disconnect()
-

@@ -1,4 +1,4 @@
-# legume. Copyright 2009 Dale Reidy. All rights reserved.
+# legume. Copyright 2009-2011 Dale Reidy. All rights reserved.
 # See LICENSE for details.
 
 __docformat__ = 'restructuredtext'
@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext'
 import logging
 import legume.timing as time
 import netshared
-import connection
+from legume.servicelocator import Service
 from legume.nevent import Event
 
 LOG = logging.getLogger('legume.peer')
@@ -16,7 +16,7 @@ class Peer(object):
     A connection to the server. Each connected Client has a paired
     Peer object instance on the server.
     '''
-    def __init__(self, parent, address):
+    def __init__(self, parent=None, address=None):
         self._connected = False
         self.parent = parent
         self._socket = parent.socket
@@ -29,7 +29,8 @@ class Peer(object):
         self.OnError = Event()
         self.OnMessage = Event()
 
-        self._connection = connection.Connection(self)
+        self._connection = Service('Connection', {'parent':self})
+
         self._connection.OnMessage += self._Connection_OnMessage
         self._connection.OnDisconnect += self._Connection_OnDisconnect
         self._connection.OnError += self._Connection_OnError
