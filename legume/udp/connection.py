@@ -342,10 +342,10 @@ class Connection(object):
         byte_buffer = ByteBuffer(packet_bytes)
         parsed_messages = []
 
-        while not byte_buffer.isEmpty():
+        while not byte_buffer.is_empty():
 
             message_id, sequence_number, message_flags = \
-                byte_buffer.readStruct(self.MESSAGE_TRANSPORT_HEADER)
+                byte_buffer.read_struct(self.MESSAGE_TRANSPORT_HEADER)
 
             message_type_id = messages.BaseMessage.readHeaderFromByteBuffer(
                 byte_buffer)[0]

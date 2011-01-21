@@ -169,27 +169,27 @@ class MessageValue(object):
 
     def readFromByteBuffer(self, byteBuffer):
         if self.typename == 'int':
-            self._value = byteBuffer.readStruct('i')[0]
+            self._value = byteBuffer.read_struct('i')[0]
 
         elif self.typename == 'short':
-            self._value = byteBuffer.readStruct('H')[0]
+            self._value = byteBuffer.read_struct('H')[0]
 
         elif self.typename == 'string':
-            self._value = byteBuffer.readStruct(str(self.max_length)+'s')[0]
+            self._value = byteBuffer.read_struct(str(self.max_length)+'s')[0]
             self._value = self._value.replace('\0', '')
 
         elif self.typename == 'float':
-            self._value = byteBuffer.readStruct('d')[0]
+            self._value = byteBuffer.read_struct('d')[0]
 
         elif self.typename == 'bool':
-            self._value = byteBuffer.readStruct('b')[0]
+            self._value = byteBuffer.read_struct('b')[0]
 
         elif self.typename == 'varstring':
-            length = byteBuffer.readStruct('H')[0]
-            self._value = byteBuffer.readStruct(str(length)+'s')[0]
+            length = byteBuffer.read_struct('H')[0]
+            self._value = byteBuffer.read_struct(str(length)+'s')[0]
 
         elif self.typename == 'uchar':
-            self._value = byteBuffer.readStruct('B')[0]
+            self._value = byteBuffer.read_struct('B')[0]
 
         else:
             raise MessageError, ('Cant get read from byteBuffer for type "%s"' %
@@ -304,7 +304,7 @@ class BaseMessage(object):
         method will return a tuple containing the header
         values.
         '''
-        return byteBuffer.readStruct(BaseMessage.HEADER_FORMAT)
+        return byteBuffer.read_struct(BaseMessage.HEADER_FORMAT)
 
     def setMessageValuesToDefaults(self):
         '''
