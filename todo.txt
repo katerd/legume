@@ -11,4 +11,6 @@
 
 	.reorder_queue
 
-[ ] Add TestServerMetricsInterface
+[ ] Add test for server metrics.
+[ ] mock socket module to make getaddrinfo work even if there isn't a network connection.
+[ ] Improve code coverage to at least 95% on all modules.
