@@ -35,20 +35,12 @@ class TestClientApi(unittest.TestCase):
         self.client.connect(('localhost', 881))
 
     def testConnectAcceptsValidArgument2(self):
-        # high port
+        # hostname with high port
         self.client.connect(('localhost', 54001))
 
     def testConnectAcceptsValidArgument3(self):
         # ip with high port
         self.client.connect(('127.0.0.1', 54001))
-
-    def testConnectAcceptsValidArgument4(self):
-        # external ip with high port
-        self.client.connect(('82.13.13.81', 54001))
-
-    def testConnectAcceptsValidArgument5(self):
-        # fqdn with low port
-        self.client.connect(('www.bbc.co.uk', 80))
 
     def testAcceptsPortAsString(self):
         self.client.connect(('127.0.0.1', '80'))
