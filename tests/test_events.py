@@ -23,7 +23,7 @@ class ExampleMessage(legume.udp.messages.BaseMessage):
     MessageValues = {
         'message':'string 32'}
 
-    def setMessageValuesToDefaults(self):
+    def set_message_values_to_defaults(self):
         self.message.value = "Hello World!"
 
 
@@ -197,7 +197,7 @@ class TestEvents(unittest.TestCase):
         example_message = ExampleMessage()
         example_message.message.value = "HITHERE"
 
-        self.client.sendReliableMessage(example_message)
+        self.client.send_reliable_message(example_message)
 
         for x in xrange(ITERATIONS):
             self.update()
@@ -219,7 +219,7 @@ class TestEvents(unittest.TestCase):
         example_message = ExampleMessage()
         example_message.message.value = "HITHERE"
 
-        self.server.sendReliableMessageToAll(example_message)
+        self.server.send_reliable_messageToAll(example_message)
 
         for x in xrange(ITERATIONS):
             self.update()

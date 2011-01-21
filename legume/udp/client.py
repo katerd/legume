@@ -181,7 +181,7 @@ class Client(netshared.NetworkEndpoint):
                 Host address. If the port is invalid an ArgumentError
                 exception will be raised.
         '''
-        if self.isActive():
+        if self.is_active():
             raise ClientError(
                 'Client cannot reconnect in a CONNECTING or CONNECTED state')
         if len(address) != 2:
@@ -199,8 +199,8 @@ class Client(netshared.NetworkEndpoint):
             raise ArgumentError, \
                 '%s is not a valid port' % port
 
-        self._createSocket()
-        self._connectSocket((host, port))
+        self._create_socket()
+        self._connect_socket((host, port))
         self._address = (host, port)
 
         self._connection = Service('Connection', {'parent':self})
@@ -212,9 +212,9 @@ class Client(netshared.NetworkEndpoint):
         self._connection.OnDisconnect += self._Connection_OnDisconnect
         self._connection.OnMessage += self._Connection_OnMessage
 
-        request_message = self.message_factory.getByName('ConnectRequest')()
+        request_message = self.message_factory.get_by_name('ConnectRequest')()
         request_message.protocol.value = netshared.PROTOCOL_VERSION
-        self._sendReliableMessage(request_message)
+        self._send_reliable_message(request_message)
         self._state = self.CONNECTING
 
     def disconnect(self):
@@ -225,11 +225,11 @@ class Client(netshared.NetworkEndpoint):
         until .update() is called.
         '''
         if self._connection is not None:
-            self._connection.sendMessage(
-                self.message_factory.getByName('Disconnected')())
+            self._connection.send_message(
+                self.message_factory.get_by_name('Disconnected')())
             self._disconnecting = True
 
-    def sendMessage(self, message):
+    def send_message(self, message):
         '''
         Send a message to the server. The message is added to the output buffer.
         To flush the output buffer call the .update() method. If the client
@@ -240,11 +240,11 @@ class Client(netshared.NetworkEndpoint):
                 The message to be sent
         '''
         if self._state == self.CONNECTED:
-            return self._sendMessage(message)
+            return self._send_message(message)
         else:
             raise ClientError, 'Cannot send packet - not connected'
 
-    def sendReliableMessage(self, message):
+    def send_reliable_message(self, message):
         '''
         Send a message to the server with guaranteed delivery. If the
         client is not connected to the server a `ClientError` exception
@@ -255,7 +255,7 @@ class Client(netshared.NetworkEndpoint):
                 The message to be sent
         '''
         if self._state == self.CONNECTED:
-            return self._sendReliableMessage(message)
+            return self._send_reliable_message(message)
         else:
             raise ClientError, 'Cannot send message - not connected'
 
@@ -269,20 +269,20 @@ class Client(netshared.NetworkEndpoint):
             self._log.debug('connection.update')
             self._connection.update()
 
-        if self._disconnecting and not self._connection.hasOutgoingPackets():
+        if self._disconnecting and not self._connection.has_outgoing_packets():
             self._disconnect(raise_event=False)
 
     # ------------- Private Methods -------------
 
-    def _sendMessage(self, message):
-        return self._connection.sendMessage(message)
+    def _send_message(self, message):
+        return self._connection.send_message(message)
 
-    def _sendReliableMessage(self, message):
-        return self._connection.sendReliableMessage(message)
+    def _send_reliable_message(self, message):
+        return self._connection.send_reliable_message(message)
 
     def _disconnect(self, raise_event=True):
         self._state = self.DISCONNECTED
-        self._shutdownSocket()
+        self._shutdown_socket()
         self._disconnecting = False
         if raise_event:
             self.OnDisconnect(self, None)
@@ -343,7 +343,7 @@ class Client(netshared.NetworkEndpoint):
 
     def _Connection_OnConnectRequestRejected(self, sender, event_args):
         self._state = self.ERRORED
-        self._shutdownSocket()
+        self._shutdown_socket()
         self.OnConnectRequestRejected(self, event_args)
 
     def _Connection_OnMessage(self, sender, message):
@@ -355,7 +355,7 @@ class Client(netshared.NetworkEndpoint):
 
     def _Connection_OnError(self, sender, error_string):
         self._state = self.ERRORED
-        self._shutdownSocket()
+        self._shutdown_socket()
         self.OnError(self, error_string)
 
     def _Connection_OnDisconnect(self, sender, event_args):

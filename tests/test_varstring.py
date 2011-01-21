@@ -65,7 +65,7 @@ class TestVarString(unittest.TestCase):
             self.update()
         vs.str.value = "TEST MESSAGE"
 
-        self.client.sendMessage(vs)
+        self.client.send_message(vs)
 
         for x in xrange(40):
             self.update()

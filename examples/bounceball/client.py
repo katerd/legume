@@ -23,7 +23,7 @@ class BallClient(shared.ClientBallEnvironment):
         self.ball_positions = None
 
     def message_handler(self, sender, args):
-        if legume.udp.messages.message_factory.isA(args, 'BallUpdate'):
+        if legume.udp.messages.message_factory.is_a(args, 'BallUpdate'):
             self.load_ball_from_message(args)
         else:
             print 'Message: %s' % args

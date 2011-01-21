@@ -13,6 +13,7 @@ class ExampleMessage(legume.udp.messages.BaseMessage):
 
 class TestClientApi(unittest.TestCase):
     def setUp(self):
+        print legume
         self.client = legume.udp.Client()
 
     def testConnectWithOneTupleArg(self):
@@ -57,12 +58,12 @@ class TestClientApi(unittest.TestCase):
 
     def testCannotSendPacketInDisconnectedState(self):
         def fails():
-            self.client.sendMessage(ExampleMessage())
+            self.client.send_message(ExampleMessage())
         self.assertRaises(ClientError, fails)
 
     def testCannotSendReliablePacketInDisconnectedState(self):
         def fails():
-            self.client.sendReliableMessage(ExampleMessage())
+            self.client.send_reliable_message(ExampleMessage())
         self.assertRaises(ClientError, fails)
 
     def testUpdateDoesntCauseErrorInUnconnectedState(self):

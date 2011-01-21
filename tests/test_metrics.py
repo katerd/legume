@@ -82,15 +82,15 @@ class TestMetrics(unittest.TestCase):
             msg = ExampleMessage()
             msg.param1.value = 100
             msg.param2.value = "example_message"
-            msg_length = len(msg.getPacketBytes())
+            msg_length = len(msg.get_packet_bytes())
 
-            out_buffer_bytes = self.client.sendMessage(msg)
-            expected_xfer += len(msg.getPacketBytes())
+            out_buffer_bytes = self.client.send_message(msg)
+            expected_xfer += len(msg.get_packet_bytes())
             # can't directly compare due to header
             self.assert_(self.client.out_buffer_bytes >= msg_length)
 
             # buffer *must* increase in size after sending another message
-            expected_xfer += self.client.sendMessage(msg)
+            expected_xfer += self.client.send_message(msg)
 
             self.assert_(self.client.out_buffer_bytes > msg_length)
 
@@ -107,16 +107,16 @@ class TestMetrics(unittest.TestCase):
         msg = ExampleMessage()
         msg.param1.value = 100
         msg.param2.value = "example_message"
-        msg_length = len(msg.getPacketBytes())
+        msg_length = len(msg.get_packet_bytes())
 
-        peer.sendMessage(msg)
+        peer.send_message(msg)
 
         # can't directly compare due to header
         out_buffer_bytes = peer.out_buffer_bytes
         self.assert_(peer.out_buffer_bytes >= msg_length)
 
         # buffer *must* increase in size after sending another message
-        peer.sendMessage(msg)
+        peer.send_message(msg)
         self.assert_(peer.out_buffer_bytes > out_buffer_bytes)
 
         self.update()

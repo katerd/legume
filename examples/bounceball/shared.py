@@ -91,7 +91,7 @@ class ClientBallEnvironment(BallEnvironment):
         message = CreateBallCommand()
         message.x.value = position[0]
         message.y.value = position[1]
-        endpoint.sendMessage(message)
+        endpoint.send_message(message)
 
 
 class ServerBallEnvironment(BallEnvironment):
@@ -109,11 +109,11 @@ class ServerBallEnvironment(BallEnvironment):
     def send_updates(self, server):
         for ball in self._balls.itervalues():
             print('Sending update for ball # %s' % ball.ball_id)
-            server.sendMessageToAll(ball.get_message())
+            server.send_messageToAll(ball.get_message())
 
     def send_initial_state(self, endpoint):
         for ball in self._balls.itervalues():
-            endpoint.sendMessage(ball.get_message(False))
+            endpoint.send_message(ball.get_message(False))
 
 
 class Ball(object):

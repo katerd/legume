@@ -10,7 +10,7 @@ if (float(sys.version[:3]) < 2.5):
     sys.exit(-1)
 
 setup(name='Legume',
-      version='0.3',
+      version='0.4',
       description='Reliable UDP library',
       author='Dale Reidy',
       url='http://code.google.com/p/legume/',

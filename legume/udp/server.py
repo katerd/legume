@@ -58,16 +58,16 @@ class Server(netshared.NetworkEndpoint):
         '''Disconnect a peer by specifying their address.
         Equivalent to::
 
-            server.getPeerByAddress(peer_address).disconnect()
+            server.get_peer_by_address(peer_address).disconnect()
         '''
-        self.getPeerByAddress(peer_address).disconnect()
+        self.get_peer_by_address(peer_address).disconnect()
 
-    def disconnectAll(self):
+    def disconnect_all(self):
         '''Disconnect all connected clients'''
         for peer in self._peers.itervalues():
             peer.disconnect()
 
-    def getPeerByAddress(self, peer_address):
+    def get_peer_by_address(self, peer_address):
         '''Obtain a ServerPeer instance by specifying the peer's address'''
         return self._peers[peer_address]
 
@@ -80,11 +80,11 @@ class Server(netshared.NetworkEndpoint):
             server = legume.udp.Server()
             server.listen(('', 4000))
         '''
-        if self.isActive():
+        if self.is_active():
             raise netshared.ServerError(
                 'Server cannot listen whilst in a LISTENING state')
-        self._createSocket()
-        self._bindSocket(address)
+        self._create_socket()
+        self._bind_socket(address)
         self._address = address
         self._state = self.LISTENING
 
@@ -100,38 +100,38 @@ class Server(netshared.NetworkEndpoint):
                 # Other update tasks here..
                 time.sleep(0.001)
         '''
-        self.doRead(self._onSocketData)
+        self.do_read(self._on_socket_data)
 
         for peer in self._peers.itervalues():
             peer.update()
 
-            if peer._pending_disconnect and not peer.hasPacketsToSend():
+            if peer._pending_disconnect and not peer.has_packets_to_send():
                 self._dead_peers.append(peer)
 
         self._removePeers()
 
-    def sendMessageToAll(self, message):
+    def send_messageToAll(self, message):
         '''Send a non-reliable packet to all connected peers.
         packet is an instance of a legume.message.BaseMessage subclass::
 
             msg = ExampleMessage()
             msg.chat_message.value = "Hello!"
             msg.sender.value = "@X3"
-            server.sendMessageToAll(msg_packet)
+            server.send_messageToAll(msg_packet)
         '''
         for peer in self._peers.itervalues():
-            peer.sendMessage(message)
+            peer.send_message(message)
 
-    def sendReliableMessageToAll(self, message):
+    def send_reliable_messageToAll(self, message):
         '''Send a reliable message to all connected peers. message is an
         instance of a legume.udp.message.BaseMessage subclass.
         '''
         for peer in self._peers.itervalues():
-            peer.sendReliableMessage(message)
+            peer.send_reliable_message(message)
 
     # ------------- Private Methods -------------
 
-    def _onSocketData(self, data, addr):
+    def _on_socket_data(self, data, addr):
         self._log.debug(
             'Got data %s bytes in length from %s' %
             (str(len(data)), str(addr)))
@@ -145,7 +145,7 @@ class Server(netshared.NetworkEndpoint):
             new_peer.OnMessage += self._Peer_OnMessage
             new_peer.OnConnectRequest += self._Peer_OnConnectRequest
 
-        self._peers[addr].processInboundPacket(data)
+        self._peers[addr].process_inbound_packet(data)
 
     def _removePeers(self):
         for dead_peer in self._dead_peers:

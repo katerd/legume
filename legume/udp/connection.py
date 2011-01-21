@@ -125,9 +125,9 @@ class Connection(object):
 
     # ------------- Public Methods -------------
 
-    def processInboundPacket(self, data):
+    def process_inbound_packet(self, data):
         self._in_packets += 1
-        self._processInboundPacket(data)
+        self._process_inbound_packet(data)
 
     def update(self):
         '''
@@ -135,7 +135,7 @@ class Connection(object):
         reads any packets that have been recieved.
         '''
         try:
-            self.parent.doRead(self._onSocketData)
+            self.parent.do_read(self._on_socket_data)
         except netshared.NetworkEndpointError, e:
             self.raiseOnError('Connection reset by peer')
             return
@@ -152,13 +152,13 @@ class Connection(object):
 
         for message in read_messages:
 
-            if self.message_factory.isA(message, 'ConnectRequestAccepted'):
+            if self.message_factory.is_a(message, 'ConnectRequestAccepted'):
                 self.OnConnectRequestAccepted(self, None)
 
-            elif self.message_factory.isA(message, 'ConnectRequestRejected'):
+            elif self.message_factory.is_a(message, 'ConnectRequestRejected'):
                 self.OnConnectRequestRejected(self, None)
 
-            elif self.message_factory.isA(message, 'KeepAliveResponse'):
+            elif self.message_factory.is_a(message, 'KeepAliveResponse'):
 
                 if (message.id.value == self._keep_alive_message_id):
                     self._ping_meter.add_sample(
@@ -166,30 +166,30 @@ class Connection(object):
                 else:
                     self._log.warning('Received old keep-alive, discarding')
 
-            elif self.message_factory.isA(message, 'KeepAliveRequest'):
+            elif self.message_factory.is_a(message, 'KeepAliveRequest'):
                 self._keepalive_count += 1
-                response = self.message_factory.getByName('KeepAliveResponse')()
+                response = self.message_factory.get_by_name('KeepAliveResponse')()
                 response.id.value = message.id.value
-                self.sendMessage(response)
+                self.send_message(response)
 
-            elif self.message_factory.isA(message, 'Pong'):
+            elif self.message_factory.is_a(message, 'Pong'):
                 if (message.id.value == self._ping_id):
                     self._ping_meter.add_sample(
                       (time.time()-self._ping_send_timestamp)*1000)
                 else:
                     self._log.warning('Received old Pong, discarding')
 
-            elif self.message_factory.isA(message, 'Ping'):
-                self._sendPong(message.id.value)
+            elif self.message_factory.is_a(message, 'Ping'):
+                self._send_pong(message.id.value)
 
-            elif self.message_factory.isA(message, 'Disconnected'):
+            elif self.message_factory.is_a(message, 'Disconnected'):
                 self._log.debug('Received `Disconnected` message')
                 self.OnDisconnect(self, None)
 
-            elif self.message_factory.isA(message, 'MessageAck'):
-                self._processMessageAck(message.message_to_ack.value)
+            elif self.message_factory.is_a(message, 'MessageAck'):
+                self._process_message_ack(message.message_to_ack.value)
 
-            elif self.message_factory.isA(message, 'ConnectRequest'):
+            elif self.message_factory.is_a(message, 'ConnectRequest'):
                 # Unless the connection request is explicitly denied then
                 # a connection is made - OnConnectRequest may return None
                 # if no event handlers are bound.
@@ -202,11 +202,11 @@ class Connection(object):
                     accept = False
 
                 if accept:
-                    response = self.message_factory.getByName('ConnectRequestAccepted')
-                    self.sendReliableMessage(response())
+                    response = self.message_factory.get_by_name('ConnectRequestAccepted')
+                    self.send_reliable_message(response())
                 else:
-                    response = self.message_factory.getByName('ConnectRequestRejected')
-                    self.sendReliableMessage(response())
+                    response = self.message_factory.get_by_name('ConnectRequestRejected')
+                    self.send_reliable_message(response())
                     self.pendingDisconnect = True
             else:
                 self.OnMessage(self, message)
@@ -215,14 +215,14 @@ class Connection(object):
         if (time.time() > self._ping_send_timestamp + PING_REQUEST_FREQUENCY):
             if self.parent.is_server:
                 self._keep_alive_send_timestamp = time.time()
-            self._sendPing()
+            self._send_ping()
 
 
         if self.parent.is_server:
             # Server sends keep alive requests...
             if ((time.time()-self._keep_alive_send_timestamp)>
                (self.parent.timeout/2)):
-                self._sendKeepAlive()
+                self._send_keep_alive()
             # though it will eventually give up...
             if (time.time()-self._last_receive_timestamp)>(self.parent.timeout):
                 self.OnError(self, 'Connection timed out')
@@ -232,7 +232,7 @@ class Connection(object):
                 self._log.info('Connection has timed out')
                 self.OnError(self, 'Connection timed out')
 
-    def sendMessage(self, message, ordered=False, reliable=False):
+    def send_message(self, message, ordered=False, reliable=False):
         '''
         Send a message and specify any options for the send method used.
         A message sent inOrder is implicitly sent as reliable.
@@ -242,9 +242,9 @@ class Connection(object):
         '''
         self._last_send_timestamp = time.time()
 
-        message_id = self._getNewOutgoingMessageNumber()
+        message_id = self._get_new_outgoing_message_number()
         if ordered:
-            inorder_sequence_number = self._getNewOutgoingInOrderSequenceNumber()
+            inorder_sequence_number = self._get_new_outgoing_inorder_sequence_number()
         else:
             inorder_sequence_number = 0
 
@@ -252,14 +252,14 @@ class Connection(object):
         packet_flags[0] = int(ordered)
         packet_flags[1] = int(reliable)
 
-        message_transport_header = self._getMessageTransportHeader(
+        message_transport_header = self._get_message_transport_header(
             message_id, inorder_sequence_number, packet_flags)
 
-        message_bytes = message.getPacketBytes()
+        message_bytes = message.get_packet_bytes()
         total_length = len(message_bytes)+len(message_transport_header)
         self._out_bytes += total_length
 
-        self._addMessageBytesToOutputList(
+        self._add_message_bytes_to_output_list(
             message_id,
             message_transport_header+message_bytes,
             ordered or reliable)
@@ -271,22 +271,22 @@ class Connection(object):
 
         return total_length
 
-    def sendReliableMessage(self, message):
+    def send_reliable_message(self, message):
         '''
         Send a message that is guaranteed to be delivered.
         message is an instance of a subclass of packets.BasePacket
         '''
-        self.sendMessage(message, False, True)
+        self.send_message(message, False, True)
 
-    def sendInOrderMessage(self, message):
+    def send_inorder_message(self, message):
         '''
         Send a message in the in-order channel. Any packets sent in-order will
         arrive in the order they were sent.
         message is an instance of a subclass of packets.BasePacket
         '''
-        self.sendMessage(message, True)
+        self.send_message(message, True)
 
-    def hasOutgoingPackets(self):
+    def has_outgoing_packets(self):
         '''
         Returns whether this buffer has any packets waiting to be sent.
         '''
@@ -294,37 +294,37 @@ class Connection(object):
 
     # ------------- Private Methods -------------
 
-    def _onSocketData(self, data, addr):
-        self._processInboundPacket(data)
+    def _on_socket_data(self, data, addr):
+        self._process_inbound_packet(data)
 
-    def _sendKeepAlive(self):
+    def _send_keep_alive(self):
         self._keep_alive_message_id += 1
         if (self._keep_alive_message_id > netshared.USHRT_MAX):
             self._keep_alive_message_id = 0
 
-        message = self.message_factory.getByName('KeepAliveRequest')()
+        message = self.message_factory.get_by_name('KeepAliveRequest')()
         message.id.value = self._keep_alive_message_id
 
-        self.sendMessage(message)
+        self.send_message(message)
         self._keep_alive_send_timestamp = time.time()
         self._keepalive_count += 1
 
-    def _sendPing(self):
+    def _send_ping(self):
         self._ping_id += 1
         if (self._ping_id > netshared.USHRT_MAX):
             self._ping_id = 0
 
-        ping = self.message_factory.getByName('Ping')()
+        ping = self.message_factory.get_by_name('Ping')()
         ping.id.value = self._ping_id
-        self.sendMessage(ping)
+        self.send_message(ping)
         self._ping_send_timestamp = time.time()
 
-    def _sendPong(self, pingID):
-        pong = self.message_factory.getByName('Pong')()
+    def _send_pong(self, pingID):
+        pong = self.message_factory.get_by_name('Pong')()
         pong.id.value = pingID
-        self.sendMessage(pong)
+        self.send_message(pong)
 
-    def _processMessageAck(self, message_id):
+    def _process_message_ack(self, message_id):
         for m in self._outgoing:
             if m.message_id == message_id:
                 self._outgoing.remove(m)
@@ -334,7 +334,7 @@ class Connection(object):
             message_id))
 
 
-    def _parsePacket(self, packet_bytes):
+    def _parse_packet(self, packet_bytes):
         '''
         Parse a raw udp packet and return a list of parsed messages.
         '''
@@ -347,10 +347,10 @@ class Connection(object):
             message_id, sequence_number, message_flags = \
                 byte_buffer.read_struct(self.MESSAGE_TRANSPORT_HEADER)
 
-            message_type_id = messages.BaseMessage.readHeaderFromByteBuffer(
+            message_type_id = messages.BaseMessage.read_header_from_byte_buffer(
                 byte_buffer)[0]
-            message = self.message_factory.getById(message_type_id)()
-            message.readFromByteBuffer(byte_buffer)
+            message = self.message_factory.get_by_id(message_type_id)()
+            message.read_from_byte_buffer(byte_buffer)
 
             # - These flags are for consumption by .update()
             message_flags_bf = bitfield(message_flags)
@@ -364,26 +364,26 @@ class Connection(object):
 
         return parsed_messages
 
-    def _processInboundPacket(self, packet_bytes):
+    def _process_inbound_packet(self, packet_bytes):
         '''
         Pass raw udp packet data to this method.
         Returns the number of packets parsed and inserted into
         the .incoming list.
         '''
         self._log.debug('%d bytes of packet_bytes read' % len(packet_bytes))
-        messages_to_read = self._parsePacket(packet_bytes)
+        messages_to_read = self._parse_packet(packet_bytes)
 
         self._in_bytes += len(packet_bytes)
 
         for message in messages_to_read:
             if not message.message_id in self._recent_message_ids:
                 if message.is_ordered:
-                    if self._canReadInOrderMessage(seqNum):
-                        self._insertMessage(message)
+                    if self._can_read_inorder_message(seqNum):
+                        self._insert_message(message)
                     else:
-                        self._holdMessage(message)
+                        self._hold_message(message)
                 else:
-                    self._insertMessage(message)
+                    self._insert_message(message)
 
         return len(messages_to_read)
 
@@ -391,17 +391,17 @@ class Connection(object):
         '''
         Update this buffer by sending any messages in the output lists
         and read any messages which have been insert into the inputBuffer
-        via the processInboundPacket call.
+        via the process_inbound_packet call.
 
         Returns a list of message instances of messages that were read.
         '''
-        read_packets = self._doRead()
-        self._truncateRecentMessageList()
-        self._doWrite(sock, address)
+        read_packets = self._do_read()
+        self._truncate_recent_message_list()
+        self._do_write(sock, address)
 
         return read_packets
 
-    def _addMessageBytesToOutputList(self, message_id,
+    def _add_message_bytes_to_output_list(self, message_id,
                                      message_bytes, require_ack=False):
         if len(message_bytes) > self.MTU:
             raise BufferError, 'Packet is too large. size=%s, mtu=%s' % (
@@ -410,14 +410,14 @@ class Connection(object):
             self._outgoing.append(
                 OutgoingMessage(message_id, message_bytes, require_ack))
 
-    def _canReadInOrderMessage(self, sequence_number):
+    def _can_read_inorder_message(self, sequence_number):
         '''
         Can the in-order message with the specified sequence number be
         insert into the .incoming list for processing?
         '''
         return self._incoming_ordered_sequence_number == (sequence_number+1)
 
-    def _createPacket(self):
+    def _create_packet(self):
         packet_size = 0
         packet_bytes = ""
 
@@ -458,11 +458,11 @@ class Connection(object):
 
         return packet_bytes
 
-    def _doRead(self):
+    def _do_read(self):
         unheld_messages = []
         for held_message in self._incoming_out_of_sequence_messages:
 
-            if self._canReadInOrderMessage(held_message.sequence_number):
+            if self._can_read_inorder_message(held_message.sequence_number):
                 unheld_messages.append(held_message)
 
                 self._incoming_inorder_sequence_number = message.sequence_number
@@ -479,7 +479,7 @@ class Connection(object):
             if message.is_ordered or message.is_reliable:
                 ack_message = messages.MessageAck()
                 ack_message.message_to_ack.value = message.message_id
-                self.sendMessage(ack_message)
+                self.send_message(ack_message)
                 self._log.info(
                   'Informing of reciept of message %d' % message.message_id)
 
@@ -488,9 +488,9 @@ class Connection(object):
 
         return read_messages
 
-    def _doWrite(self, sock, address):
+    def _do_write(self, sock, address):
         while True:
-            packet = self._createPacket()
+            packet = self._create_packet()
             if not packet:
                 break
 
@@ -506,17 +506,17 @@ class Connection(object):
 
             self._log.info('Sent UDP packet %d bytes in length' % len(packet))
 
-    def _getMessageTransportHeader(self, message_id,
+    def _get_message_transport_header(self, message_id,
                                    sequence_number, message_flags):
         return struct.pack(
             '!'+self.MESSAGE_TRANSPORT_HEADER,
             message_id, sequence_number, int(message_flags))
 
-    def _getNewOutgoingInOrderSequenceNumber(self):
+    def _get_new_outgoing_inorder_sequence_number(self):
         self._outgoing_ordered_sequence_number += 1
         return self._outgoing_ordered_sequence_number
 
-    def _getNewOutgoingMessageNumber(self):
+    def _get_new_outgoing_message_number(self):
         '''
         Returns a message ID for the next outgoing message. The
         outgoingMessageID attribute contains the ID returned
@@ -525,17 +525,17 @@ class Connection(object):
         self._outgoing_message_id += 1
         return self._outgoing_message_id
 
-    def _holdMessage(self, message):
+    def _hold_message(self, message):
         self._incoming_out_of_sequence_messages.append(message)
         self._recent_message_ids.append(message.message_id)
 
-    def _insertMessage(self, message):
+    def _insert_message(self, message):
         self._incoming_messages.append(message)
         self._recent_message_ids.append(message.message_id)
         if message.is_ordered:
             self._incoming_ordered_sequence_number = message.sequence_number
 
-    def _truncateRecentMessageList(self):
+    def _truncate_recent_message_list(self):
         '''
         Ensures that the recentMessageIDs list length is kept below
         MAX_RECENT_PACKET_LIST_SIZE. This method is called as part of this class'

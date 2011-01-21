@@ -73,8 +73,8 @@ class Peer(object):
         return self.parent.timeout
 
     @property
-    def lastPacketSentAt(self):
-        return self._connection.lastPacketSentAt
+    def last_packet_sent_at(self):
+        return self._connection.last_packet_sent_at
 
     def _Connection_OnMessage(self, sender, event_args):
         if not self._connected:
@@ -95,16 +95,16 @@ class Peer(object):
     def _Connection_OnDisconnect(self, sender, event_args):
         self.OnDisconnect(self, sender)
 
-    def doRead(self, callback):
-        self.parent.doRead(callback)
+    def do_read(self, callback):
+        self.parent.do_read(callback)
 
-    def processInboundPacket(self, rawData):
-        self._connection.processInboundPacket(rawData)
+    def process_inbound_packet(self, rawData):
+        self._connection.process_inbound_packet(rawData)
 
-    def hasPacketsToSend(self):
-        return self._connection.hasOutgoingPackets()
+    def has_packets_to_send(self):
+        return self._connection.has_outgoing_packets()
 
-    def sendMessage(self, packet):
+    def send_message(self, packet):
         '''
         Adds a packet to the outgoing buffer to be sent to the client.
         This does not set the in-order or reliable flags.
@@ -114,14 +114,14 @@ class Peer(object):
         '''
         if self._pending_disconnect:
             raise netshared.ServerError, \
-                'Cannot sendMessage to a disconnecting peer'
-        return self._connection.sendMessage(packet)
+                'Cannot send_message to a disconnecting peer'
+        return self._connection.send_message(packet)
 
-    def sendReliableMessage(self, packet):
+    def send_reliable_message(self, packet):
         if self._pending_disconnect:
             raise netshared.ServerError, \
-                'Cannot sendReliableMessage to a disconnecting peer'
-        self._connection.sendReliableMessage(packet)
+                'Cannot send_reliable_message to a disconnecting peer'
+        self._connection.send_reliable_message(packet)
 
     def disconnect(self):
         '''
@@ -130,8 +130,8 @@ class Peer(object):
         this connection has emptied.
         '''
         LOG.info('Sent Disconnected message to client')
-        self._connection.sendMessage(
-            self.parent.message_factory.getByName('Disconnected')())
+        self._connection.send_message(
+            self.parent.message_factory.get_by_name('Disconnected')())
         self._pending_disconnect = True
 
     def update(self):

@@ -67,7 +67,7 @@ class TestReliableMessage(unittest.TestCase):
         for x in xrange(MESSAGE_COUNT):
             msg = ReliableMessage()
             msg.param1.value = x
-            self.server.sendReliableMessageToAll(msg)
+            self.server.send_reliable_messageToAll(msg)
             self.send_count += 1
             self.update()
 
@@ -85,7 +85,7 @@ class TestReliableMessage(unittest.TestCase):
         for x in xrange(MESSAGE_COUNT):
             msg = ReliableMessage()
             msg.param1.value = x
-            self.client.sendReliableMessage(msg)
+            self.client.send_reliable_message(msg)
             self.send_count += 1
             self.update()
         self.update()
@@ -107,9 +107,9 @@ class TestReliableMessage(unittest.TestCase):
         for x in xrange(MESSAGE_COUNT):
             msg = ReliableMessage()
             msg.param1.value = x
-            self.client.sendReliableMessage(msg)
+            self.client.send_reliable_message(msg)
             self.client_to_server.sent += 1
-            self.server.sendReliableMessageToAll(msg)
+            self.server.send_reliable_messageToAll(msg)
             self.server_to_client.sent += 1
             self.update()
         self.update()
@@ -128,7 +128,7 @@ class TestReliableMessage(unittest.TestCase):
 
         def Server_OnMessage(sender, message):
             # ignore chaff messages
-            if self.message_factory.isA(message, 'ReliableMessage'):
+            if self.message_factory.is_a(message, 'ReliableMessage'):
                 self.recv_count += 1
 
         self.server.OnMessage += Server_OnMessage
@@ -136,12 +136,12 @@ class TestReliableMessage(unittest.TestCase):
         for x in xrange(MESSAGE_COUNT):
             msg = ReliableMessage()
             msg.param1.value = x
-            self.client.sendReliableMessage(msg)
+            self.client.send_reliable_message(msg)
             self.send_count += 1
 
             chaff = ChaffMessage()
             chaff.str.value = "A" * random.randint(1, 1000)
-            self.client.sendMessage(chaff)
+            self.client.send_message(chaff)
 
             self.update()
         self.update()
@@ -154,7 +154,7 @@ class TestReliableMessage(unittest.TestCase):
 
         def Client_OnMessage(sender, message):
             # ignore chaff messages
-            if self.message_factory.isA(message, 'ReliableMessage'):
+            if self.message_factory.is_a(message, 'ReliableMessage'):
                 self.recv_count += 1
 
         self.client.OnMessage += Client_OnMessage
@@ -162,12 +162,12 @@ class TestReliableMessage(unittest.TestCase):
         for x in xrange(MESSAGE_COUNT):
             msg = ReliableMessage()
             msg.param1.value = x
-            self.server.sendReliableMessageToAll(msg)
+            self.server.send_reliable_messageToAll(msg)
             self.send_count += 1
 
             chaff = ChaffMessage()
             chaff.str.value = "A" * random.randint(1, 1000)
-            self.server.sendMessageToAll(chaff)
+            self.server.send_messageToAll(chaff)
 
             self.update()
         self.update()
@@ -179,28 +179,28 @@ class TestReliableMessage(unittest.TestCase):
         self.client_to_server = SendMetrics()
 
         def Client_OnMessage(sender, message):
-            if self.message_factory.isA(message, 'ReliableMessage'):
+            if self.message_factory.is_a(message, 'ReliableMessage'):
                 self.server_to_client.recv += 1
         self.client.OnMessage += Client_OnMessage
 
         def Server_OnMessage(sender, message):
-            if self.message_factory.isA(message, 'ReliableMessage'):
+            if self.message_factory.is_a(message, 'ReliableMessage'):
                 self.client_to_server.recv += 1
         self.server.OnMessage += Server_OnMessage
 
         for x in xrange(MESSAGE_COUNT):
             msg = ReliableMessage()
             msg.param1.value = x
-            self.client.sendReliableMessage(msg)
+            self.client.send_reliable_message(msg)
             self.client_to_server.sent += 1
-            self.server.sendReliableMessageToAll(msg)
+            self.server.send_reliable_messageToAll(msg)
             self.server_to_client.sent += 1
 
             chaff = ChaffMessage()
             chaff.str.value = "A" * random.randint(1, 1000)
-            self.client.sendMessage(chaff)
+            self.client.send_message(chaff)
 
-            self.server.sendMessageToAll(chaff)
+            self.server.send_messageToAll(chaff)
 
             self.update()
         self.update()

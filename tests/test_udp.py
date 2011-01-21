@@ -92,11 +92,11 @@ class TestPacket(unittest.TestCase):
 
     def testConnectRequestPacketFormat(self):
         self.assertEquals(
-            legume.udp.messages.ConnectRequest().getHeaderFormat(),
+            legume.udp.messages.ConnectRequest().get_header_format(),
             PACKET_HEADER_FORMAT)
 
     def testConnectRequestMessageValues(self):
-        values = legume.udp.messages.ConnectRequest().getMessageValues()
+        values = legume.udp.messages.ConnectRequest().get_message_values()
         values[1] = legume.udp.netshared.PROTOCOL_VERSION
 
         self.assertEquals(
@@ -119,7 +119,7 @@ class TestTestPacket1NormalUsage(unittest.TestCase):
 
     def testTestPacket1_1(self):
         self.assertEquals(
-            self.tp.getMessageValues(),
+            self.tp.get_message_values(),
             [TestPacket1.MessageTypeID, 'Hello World!'])
 
     def testTestPacket1Value(self):
@@ -132,15 +132,15 @@ class TestTestPacket1NormalUsage(unittest.TestCase):
 
     def testTestPacket1ValueFormatString(self):
         self.assertEquals(
-            self.tp.message.getFormatString(), '32s')
+            self.tp.message.get_format_string(), '32s')
 
     def testTestPacket1PacketFormat(self):
         self.assertEquals(
-            self.tp.getMessageFormat(),
+            self.tp.get_message_format(),
             PACKET_HEADER_FORMAT + '32s')
 
     def testGetPacketString(self):
-        self.tp.getPacketBytes()
+        self.tp.get_packet_bytes()
 
     def testLongValueRaisesException(self):
         def setLongValue():
@@ -338,7 +338,7 @@ class TestServerToClientMessage(unittest.TestCase):
             if (not sent_packet) and (self.peer_address is not None):
                 p = MessagePacket()
                 p.message.value = self.message_to_send
-                self.server.getPeerByAddress(self.peer_address).sendMessage(p)
+                self.server.get_peer_by_address(self.peer_address).send_message(p)
                 sent_packet = True
                 print('Sent message from Server to Client')
 
@@ -373,11 +373,11 @@ class TestMessageFactory(unittest.TestCase):
 
     def testMessageFactoryHasBaseMessagesByDefault(self):
         for pname, pclass in legume.udp.messages.messages.iteritems():
-            self.assertEquals(self.mf.getByName(pname), pclass)
+            self.assertEquals(self.mf.get_by_name(pname), pclass)
 
     def testMessageFactoryAddTestPacket2(self):
         self.mf.add(TestPacket2)
-        self.assertEquals(self.mf.getByName('TestPacket2'), TestPacket2)
+        self.assertEquals(self.mf.get_by_name('TestPacket2'), TestPacket2)
 
     def testMessageFactoryCantShareIDs(self):
         def willfail():
@@ -398,24 +398,24 @@ class TestMessageFactory(unittest.TestCase):
     def testMessageFactoryNotJustReturningRubbish(self):
         self.mf.add(TestPacket2)
         def willfail():
-            self.mf.getByName('ThisPacketIsMakeBelieve')
+            self.mf.get_by_name('ThisPacketIsMakeBelieve')
         self.assertRaises(legume.udp.messages.MessageError, willfail)
 
     def testMessageFactoryGetById(self):
         self.mf.add(TestPacket2)
         self.assertEquals(
-            self.mf.getById(TestPacket2.MessageTypeID).MessageTypeID,
+            self.mf.get_by_id(TestPacket2.MessageTypeID).MessageTypeID,
             TestPacket2.MessageTypeID)
 
     def testMessageFactoryGetByIdBadId(self):
         def willfail():
-            self.mf.getById(423984723)
+            self.mf.get_by_id(423984723)
         self.assertRaises(legume.udp.messages.MessageError, willfail)
 
     def testGetBuiltinPacketById(self):
         self.assertEquals(
             legume.udp.messages.ConnectRequest,
-            self.mf.getById(legume.udp.messages.ConnectRequest.MessageTypeID))
+            self.mf.get_by_id(legume.udp.messages.ConnectRequest.MessageTypeID))
 
 class TestDisconnectAll(unittest.TestCase):
     def setUp(self):
@@ -448,7 +448,7 @@ class TestDisconnectAll(unittest.TestCase):
         self.assertTrue(self.client2.connected)
         self.assertEquals(self.server.peercount, 2)
 
-        self.server.disconnectAll()
+        self.server.disconnect_all()
 
         for x in xrange(100):
             self.update()

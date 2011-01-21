@@ -98,9 +98,9 @@ class MessageValue(object):
             raise MessageError('A value name is required')
 
         if message is not None and message.UseDefaultValues:
-            self.setDefaultValue()
+            self.set_default_value()
 
-    def setDefaultValue(self):
+    def set_default_value(self):
         if self.typename == 'int':
             self._value =0
         elif self.typename == 'short':
@@ -119,16 +119,16 @@ class MessageValue(object):
             raise MessageError, ('Cant set default value for type "%s"' %
                 self.typename)
 
-    def getMessageValues(self):
+    def get_message_values(self):
         if self.typename == 'varstring':
             return [len(self.value), self._value]
         else:
             return [self._value]
 
-    def getValue(self):
+    def get_value(self):
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         if self.typename == 'string':
             if len(value) > self.max_length:
                 raise MessageError, 'String value is too long.'
@@ -136,9 +136,9 @@ class MessageValue(object):
         else:
             self._value = value
 
-    value = property(getValue, setValue)
+    value = property(get_value, set_value)
 
-    def getFormatString(self):
+    def get_format_string(self):
         '''
         Returns the string necessary for encoding this value using struct.
         '''
@@ -167,7 +167,7 @@ class MessageValue(object):
             raise MessageError, ('Cant get format string for type "%s"' %
                 self.typename)
 
-    def readFromByteBuffer(self, byteBuffer):
+    def read_from_byte_buffer(self, byteBuffer):
         if self.typename == 'int':
             self._value = byteBuffer.read_struct('i')[0]
 
@@ -218,7 +218,7 @@ class BaseMessage(object):
 
         if len(values) > 0:
             for value in values:
-                self._addValue(value)
+                self._add_value(value)
         elif self.MessageValues is not None:
             for mvname, mvtype in self.MessageValues.iteritems():
                 if mvtype[:6] == 'string':
@@ -227,28 +227,28 @@ class BaseMessage(object):
                     valuetype = mvtype
                     param = None
                 new_value = MessageValue(mvname, valuetype, None, param, self)
-                self._addValue(new_value)
+                self._add_value(new_value)
 
-        self.setMessageValuesToDefaults()
+        self.set_message_values_to_defaults()
 
-    def _addValue(self, value):
+    def _add_value(self, value):
         self.value_names.append(value.name)
         self.__dict__[value.name] = value
 
-    def getHeaderFormat(self):
+    def get_header_format(self):
         '''
         Returns the header format as a struct compatible string.
         '''
         return self.HEADER_FORMAT
 
-    def getHeaderValues(self):
+    def get_header_values(self):
         '''
         Returns a list containing the values used to construct
         the packet header.
         '''
         return [self._message_type_id]
 
-    def getDataFormat(self):
+    def get_data_format(self):
         '''
         Returns a struct compatible format string of the packet data
         '''
@@ -258,39 +258,39 @@ class BaseMessage(object):
             if not isinstance(value, MessageValue):
                 raise MessageError(
                     'Overwritten message value! Use msgval.value = xyz')
-            format.append(value.getFormatString())
+            format.append(value.get_format_string())
         return ''.join(format)
 
-    def getMessageValues(self):
+    def get_message_values(self):
         '''
         Returns a list containing the header+packet values used
         to construct the packet
         '''
-        values = self.getHeaderValues()
+        values = self.get_header_values()
         for name in self.value_names:
             self._log.debug('Packet value %s = %s' %
-                (name, self.__dict__[name].getMessageValues()))
-            values.extend(self.__dict__[name].getMessageValues())
+                (name, self.__dict__[name].get_message_values()))
+            values.extend(self.__dict__[name].get_message_values())
         self._log.debug('Packetvalues = %s' % values)
         return values
 
-    def getMessageFormat(self):
+    def get_message_format(self):
         '''
         Returns a struct compatible format string of the message
         header and data
         '''
-        return self.getHeaderFormat() + self.getDataFormat()
+        return self.get_header_format() + self.get_data_format()
 
-    def getPacketBytes(self):
+    def get_packet_bytes(self):
         '''
         Returns a string containing the header and data. This
         string can be passed to .loadFromString(...).
         '''
 
-        message_values = self.getMessageValues()
+        message_values = self.get_message_values()
 
         packet_bytes = struct.pack(
-            '!'+self.getMessageFormat(),
+            '!'+self.get_message_format(),
             *message_values)
 
         self._log.debug('MESSAGE STRING LENGTH=%s' % len(packet_bytes))
@@ -298,7 +298,7 @@ class BaseMessage(object):
         return packet_bytes
 
     @staticmethod
-    def readHeaderFromByteBuffer(byteBuffer):
+    def read_header_from_byte_buffer(byteBuffer):
         '''
         Read a packet header from an instance of ByteBuffer. This
         method will return a tuple containing the header
@@ -306,18 +306,18 @@ class BaseMessage(object):
         '''
         return byteBuffer.read_struct(BaseMessage.HEADER_FORMAT)
 
-    def setMessageValuesToDefaults(self):
+    def set_message_values_to_defaults(self):
         '''
         Override this method to assign default values.
         '''
         pass
 
-    def readFromByteBuffer(self, byteBuffer):
+    def read_from_byte_buffer(self, byteBuffer):
         '''
         Reconstitute the packet from a ByteBuffer instance
         '''
         for name in self.value_names:
-            self.__dict__[name].readFromByteBuffer(byteBuffer)
+            self.__dict__[name].read_from_byte_buffer(byteBuffer)
 
 class ConnectRequest(BaseMessage):
     '''
@@ -328,7 +328,7 @@ class ConnectRequest(BaseMessage):
         'protocol':'uchar'
     }
 
-    def loadDefaultValues(self):
+    def load_default_values(self):
         self.protocol.value = PROTOCOL_VERSION
 
 
@@ -431,7 +431,7 @@ class MessageFactory(object):
             self._factories_by_name[message_class.__name__] = messsage_factory_item
             self._factories_by_id[message_class.MessageTypeID] = messsage_factory_item
 
-    def getById(self, id):
+    def get_by_id(self, id):
         '''
         Obtain a message class by specifying the packets MessageTypeID.
         If the message cannot be found a MessageError exception is raised.
@@ -441,7 +441,7 @@ class MessageFactory(object):
         except KeyError, e:
             raise MessageError, 'No message exists with ID %s' % str(id)
 
-    def getByName(self, name):
+    def get_by_name(self, name):
         '''
         Obtain a message class by specifying the packets name.
         If the message cannot be found a MessageError exception is raised.
@@ -451,16 +451,16 @@ class MessageFactory(object):
         except KeyError, e:
             raise MessageError, 'No message exists with name %s' % str(name)
 
-    def isA(self, message_instance, message_name):
+    def is_a(self, message_instance, message_name):
         '''
         Determine if message_instance is an instance of the named message class.
 
         Example:
         >>> tp = TestPacket1()
-        >>> message_factory.isA(tp, 'TestPacket1')
+        >>> message_factory.is_a(tp, 'TestPacket1')
         True
         '''
-        return isinstance(message_instance, self.getByName(message_name))
+        return isinstance(message_instance, self.get_by_name(message_name))
 
 messages = {
     'ConnectRequest':ConnectRequest,

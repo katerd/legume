@@ -48,26 +48,26 @@ class NetworkEndpoint(object):
     def setTimeout(self, timeout):
         self._timeout = float(timeout)
 
-    def _createSocket(self):
+    def _create_socket(self):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._socket.setblocking(0)
         return self._socket
 
-    def _shutdownSocket(self):
+    def _shutdown_socket(self):
         self._socket.shutdown(socket.SHUT_RDWR)
         self._socket.close()
 
-    def _connectSocket(self, addr):
+    def _connect_socket(self, addr):
         self._socket.connect(addr)
 
-    def _bindSocket(self, addr):
+    def _bind_socket(self, addr):
         self._socket.bind(addr)
 
-    def isActive(self):
+    def is_active(self):
         return self._state in [
             self.LISTENING, self.CONNECTING, self.CONNECTED]
 
-    def doRead(self, callback):
+    def do_read(self, callback):
         if self._state in [self.LISTENING, self.CONNECTED, self.CONNECTING]:
             if self._socket:
                 try:
@@ -84,6 +84,6 @@ class NetworkEndpoint(object):
             else:
                 raise NetworkEndpointError, 'Endpoint is not active'
 
-    def getState(self):
+    def get_state(self):
         return self._state
-    state = property(getState)
+    state = property(get_state)
