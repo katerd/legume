@@ -502,6 +502,7 @@ class Connection(object):
                     self._log.info('CONNECTION_LOSS override')
             else:
                 bytes_sent = sock.sendto(packet, 0, address)
+                self._out_packets += 1
 
             self._log.info('Sent UDP packet %d bytes in length' % len(packet))
 
