@@ -17,4 +17,4 @@
 
 [ ] Add legume.update() to run .update() for each client and server once.
 [ ] Add legume.update_forver() to call legume.update() forever.
-[ ] Consider changing API from camelCase to camel_case.
+[x] change API from camelCase to camel_case.
