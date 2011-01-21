@@ -2,8 +2,7 @@
 # See LICENSE for details.
 
 import struct
-
-class BufferError(Exception): pass
+from legume.exceptions import BufferError
 
 class ByteBuffer(object):
     '''

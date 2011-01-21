@@ -5,3 +5,4 @@ class PacketDataError(LegumeError): pass
 class ServerError(LegumeError): pass
 class ClientError(LegumeError): pass
 class MessageError(LegumeError): pass
+class BufferError(LegumeError): pass
