@@ -1,17 +1,15 @@
 [ ] Add metrics to connections:
-
-	.latency - DONE
-	.out_buffer_bytes - DONE
-	.pending_acks
-	.in_bytes
-	.out_bytes
-	.in_packets
-	.out_packets
-    .in_messages
-    .out_messages
-	.keepalive_count
-	.reorder_queue
-
+        .latency - DONE
+        .out_buffer_bytes - DONE
+        .pending_acks
+        .in_bytes
+        .out_bytes
+        .in_packets
+        .out_packets
+        .in_messages
+        .out_messages
+        .keepalive_count
+        .reorder_queue
 [ ] Add test for server metrics.
 [ ] mock socket module to make getaddrinfo work even if there isn't a network connection.
 [ ] Improve code coverage to at least 95% on all modules.
@@ -20,3 +18,8 @@
 [x] change API from camelCase to camel_case.
 [ ] in-case of an assertion in the test cases, write debug information for
     any active objects.
+[ ] Extend unittest.TestCase to include the following methods:
+        .assertGreater
+        .assertGreaterOrEqual
+        .assertLessThan
+        .assertLessThanOrEqual
