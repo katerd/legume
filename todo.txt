@@ -23,3 +23,8 @@
         .assertGreaterOrEqual
         .assertLessThan
         .assertLessThanOrEqual
+[ ] Make compatible with Python 3.
+[ ] Test compatibility with:
+        [ ] Python 2.5
+        [ ] Python 2.6
+        [ ] Python 2.7
