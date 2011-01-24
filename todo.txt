@@ -15,6 +15,4 @@
 [ ] mock socket module to make getaddrinfo work even if there isn't a network connection.
 [ ] Improve code coverage to at least 95% on all modules.
 
-[ ] Add legume.update() to run .update() for each client and server once.
-[ ] Add legume.update_forver() to call legume.update() forever.
 [x] change API from camelCase to camel_case.

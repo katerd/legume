@@ -31,13 +31,24 @@ class Metrics(object):
         return 0
 
     @property
+    def out_messages(self):
+        '''Count of messages sent. Includes connection management messages -
+        see legume.messages.messages list.'''
+        return 0
+
+    @property
+    def in_messages(self):
+        '''Count of messages received. Includes connection management messages -
+        see legume.messages.messages list.'''
+
+    @property
     def in_packets(self):
-        '''Count of packets received. Includes connection management packets.'''
+        '''Count of packets received.'''
         return 0
 
     @property
     def out_packets(self):
-        '''Count of packets sent. Includes connection management packets.'''
+        '''Count of packets sent.'''
         return 0
 
     @property
