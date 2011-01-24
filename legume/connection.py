@@ -243,9 +243,11 @@ class Connection(object):
         '''
         self._last_send_timestamp = time.time()
 
-        message_id = self._get_new_outgoing_message_number()
+        self._outgoing_message_id += 1
+        message_id = self._outgoing_message_id
         if ordered:
-            inorder_sequence_number = self._get_new_outgoing_inorder_sequence_number()
+            self._outgoing_ordered_sequence_number += 1
+            inorder_sequence_number = self._outgoing_ordered_sequence_number
         else:
             inorder_sequence_number = 0
 
@@ -253,8 +255,9 @@ class Connection(object):
         packet_flags[0] = int(ordered)
         packet_flags[1] = int(reliable)
 
-        message_transport_header = self._get_message_transport_header(
-            message_id, inorder_sequence_number, packet_flags)
+        message_transport_header = struct.pack(
+            '!'+self.MESSAGE_TRANSPORT_HEADER,
+            message_id, inorder_sequence_number, int(packet_flags))
 
         message_bytes = message.get_packet_bytes()
         total_length = len(message_bytes)+len(message_transport_header)
@@ -382,7 +385,9 @@ class Connection(object):
                     if self._can_read_inorder_message(seqNum):
                         self._insert_message(message)
                     else:
-                        self._hold_message(message)
+                        self._incoming_out_of_sequence_messages.append(message)
+                        self._recent_message_ids.append(message.message_id)
+
                 else:
                     self._insert_message(message)
 
@@ -511,29 +516,6 @@ class Connection(object):
                 self._log.info('Simulated packet loss')
 
             self._log.info('Sent UDP packet %d bytes in length' % len(packet))
-
-    def _get_message_transport_header(self, message_id,
-                                   sequence_number, message_flags):
-        return struct.pack(
-            '!'+self.MESSAGE_TRANSPORT_HEADER,
-            message_id, sequence_number, int(message_flags))
-
-    def _get_new_outgoing_inorder_sequence_number(self):
-        self._outgoing_ordered_sequence_number += 1
-        return self._outgoing_ordered_sequence_number
-
-    def _get_new_outgoing_message_number(self):
-        '''
-        Returns a message ID for the next outgoing message. The
-        outgoingMessageID attribute contains the ID returned
-        by the last call to this method.
-        '''
-        self._outgoing_message_id += 1
-        return self._outgoing_message_id
-
-    def _hold_message(self, message):
-        self._incoming_out_of_sequence_messages.append(message)
-        self._recent_message_ids.append(message.message_id)
 
     def _insert_message(self, message):
         self._incoming_messages.append(message)
