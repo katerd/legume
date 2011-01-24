@@ -6,8 +6,8 @@ __docformat__ = 'restructuredtext'
 import logging
 import netshared
 import messages
-from legume.nevent import Event, NEventError
-from legume.servicelocator import Service
+from nevent import Event, NEventError
+from servicelocator import Service
 
 class Server(netshared.NetworkEndpoint):
     '''

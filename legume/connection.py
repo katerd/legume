@@ -7,12 +7,12 @@ import struct
 import random
 import logging
 import netshared
-import legume.timing as time
-from legume.nevent import Event
-from legume.pingsampler import PingSampler
-from legume.bitfield import bitfield
-from legume.bytebuffer import ByteBuffer
-from legume.udp import messages
+import timing as time
+from nevent import Event
+from pingsampler import PingSampler
+from bitfield import bitfield
+from bytebuffer import ByteBuffer
+import messages
 
 PING_REQUEST_FREQUENCY = 2.0
 CONNECTION_LOSS = 0

@@ -17,8 +17,8 @@ def getRandomPort():
     return random.randint(16000, 50000)
 
 
-class ExamplePacket(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+5
+class ExamplePacket(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+5
     MessageValues = {
         'str':'varstring'}
 
@@ -26,11 +26,11 @@ class ExamplePacket(legume.udp.messages.BaseMessage):
 class TestVarString(unittest.TestCase):
     def setUp(self):
         logger.setLevel(logging.DEBUG)
-        self.message_factory = legume.udp.messages.MessageFactory()
+        self.message_factory = legume.messages.MessageFactory()
         self.message_factory.add(ExamplePacket)
 
-        self.server = legume.udp.Server(self.message_factory)
-        self.client = legume.udp.Client(self.message_factory)
+        self.server = legume.Server(self.message_factory)
+        self.client = legume.Client(self.message_factory)
         port = getRandomPort()
         self.server.listen((HOST, port))
         self.client.connect((HOST, port))

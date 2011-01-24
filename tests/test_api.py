@@ -7,14 +7,14 @@ import unittest
 import legume
 from legume.exceptions import *
 
-class ExampleMessage(legume.udp.messages.BaseMessage):
+class ExampleMessage(legume.messages.BaseMessage):
     MessageTypeID = 43011
     MessageValues = {'int':'int'}
 
 class TestClientApi(unittest.TestCase):
     def setUp(self):
         print legume
-        self.client = legume.udp.Client()
+        self.client = legume.Client()
 
     def testConnectWithOneTupleArg(self):
         def fails():

@@ -14,9 +14,9 @@ def getRandomPort():
 
 class TestLatency(unittest.TestCase):
     def setUp(self):
-        self.mf = legume.udp.messages.MessageFactory()
-        self.server = legume.udp.Server(self.mf)
-        self.client = legume.udp.Client(self.mf)
+        self.mf = legume.messages.MessageFactory()
+        self.server = legume.Server(self.mf)
+        self.client = legume.Client(self.mf)
         port = getRandomPort()
         self.server.listen((HOST, port))
         self.client.connect((HOST, port))

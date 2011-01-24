@@ -3,11 +3,14 @@
 
 __docformat__ = 'restructuredtext'
 
-import udp
-import udp.serverpeer
-import udp.connection
+from client import Client
+from server import Server
+from messages import BaseMessage
+
+import serverpeer
+import connection
 import servicelocator
 import exceptions
 
-servicelocator.add('Connection', udp.connection.Connection)
-servicelocator.add('Peer', udp.serverpeer.Peer)
+servicelocator.add('Connection', connection.Connection)
+servicelocator.add('Peer', serverpeer.Peer)

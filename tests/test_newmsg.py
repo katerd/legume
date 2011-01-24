@@ -6,8 +6,8 @@ import unittest
 import legume
 
 
-class ExamplePacket(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+1
+class ExamplePacket(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+1
     MessageValues = {
         'player_name' : 'string 32',
         'password' : 'string 8',
@@ -33,7 +33,7 @@ class TestPacketCreation(unittest.TestCase):
 
     def testStringFieldLimit(self):
         self.assertRaises(
-            legume.udp.messages.MessageError,
+            legume.messages.MessageError,
             self._breakPasswordValue)
 
 if __name__ == '__main__':

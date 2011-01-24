@@ -17,8 +17,8 @@ def getRandomPort():
 class TestKeepAlive(unittest.TestCase):
     def setUp(self):
         self.port = getRandomPort()
-        self.server = legume.udp.Server()
-        self.client = legume.udp.Client()
+        self.server = legume.Server()
+        self.client = legume.Client()
 
     def initEndpoints(self):
         self.server.listen(('', self.port))

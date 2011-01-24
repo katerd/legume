@@ -4,11 +4,11 @@
 __docformat__ = 'restructuredtext'
 
 import logging
-import legume.timing as time
+import timing as time
 import netshared
 import metrics
-from legume.servicelocator import Service
-from legume.nevent import Event
+from servicelocator import Service
+from nevent import Event
 
 LOG = logging.getLogger('legume.peer')
 

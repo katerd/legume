@@ -17,27 +17,27 @@ import logging
 
 class TestInstantiation(unittest.TestCase):
     def testClientCtor(self):
-        c = legume.udp.Client()
+        c = legume.Client()
 
     def testServerCtor(self):
-        s = legume.udp.Server()
+        s = legume.Server()
 
 class TestConnectionSetup(unittest.TestCase):
     def testClientConnect(self):
-        c = legume.udp.Client()
+        c = legume.Client()
         c.connect(('localhost', getRandomPort()))
 
     def testServerListen(self):
-        s = legume.udp.Server()
+        s = legume.Server()
         s.listen(('', getRandomPort()))
 
 class TestUpdate(unittest.TestCase):
     def testClientUpdate(Self):
-        c = legume.udp.Client()
+        c = legume.Client()
         c.update()
 
     def testServerUpdate(self):
-        s = legume.udp.Server()
+        s = legume.Server()
         s.update()
 
 # ========
@@ -45,7 +45,7 @@ class TestUpdate(unittest.TestCase):
 class TestClientState(unittest.TestCase):
 
     def setUp(self):
-        self.client = legume.udp.Client()
+        self.client = legume.Client()
 
     def testClientClosedStated(self):
         self.assertEquals(self.client.state, self.client.DISCONNECTED)
@@ -63,14 +63,14 @@ class TestClientState(unittest.TestCase):
         def willfail():
             self.client.connect(('localhost', getRandomPort()))
             self.client.connect(('localhost', getRandomPort()))
-        self.assertRaises(legume.udp.client.ClientError, willfail)
+        self.assertRaises(legume.client.ClientError, willfail)
 
 # ========
 
 class TestServerState(unittest.TestCase):
 
     def setUp(self):
-        self.server = legume.udp.Server()
+        self.server = legume.Server()
 
     def testServerClosedState(self):
         self.assertEquals(self.server.state, self.server.DISCONNECTED)
@@ -86,30 +86,30 @@ class TestServerState(unittest.TestCase):
 
 # ========
 
-PACKET_HEADER_FORMAT = legume.udp.messages.BaseMessage.HEADER_FORMAT
+PACKET_HEADER_FORMAT = legume.messages.BaseMessage.HEADER_FORMAT
 
 class TestPacket(unittest.TestCase):
 
     def testConnectRequestPacketFormat(self):
         self.assertEquals(
-            legume.udp.messages.ConnectRequest().get_header_format(),
+            legume.messages.ConnectRequest().get_header_format(),
             PACKET_HEADER_FORMAT)
 
     def testConnectRequestMessageValues(self):
-        values = legume.udp.messages.ConnectRequest().get_message_values()
-        values[1] = legume.udp.netshared.PROTOCOL_VERSION
+        values = legume.messages.ConnectRequest().get_message_values()
+        values[1] = legume.netshared.PROTOCOL_VERSION
 
         self.assertEquals(
             values,
-            [legume.udp.messages.ConnectRequest.MessageTypeID,
-            legume.udp.netshared.PROTOCOL_VERSION])
+            [legume.messages.ConnectRequest.MessageTypeID,
+            legume.netshared.PROTOCOL_VERSION])
 
 
-class TestPacket1(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+1
+class TestPacket1(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+1
     def __init__(self):
-        legume.udp.messages.BaseMessage.__init__(self,
-            legume.udp.messages.MessageValue(
+        legume.messages.BaseMessage.__init__(self,
+            legume.messages.MessageValue(
                 'message', 'string', 'Hello World!', max_length=32))
 
 class TestTestPacket1NormalUsage(unittest.TestCase):
@@ -147,7 +147,7 @@ class TestTestPacket1NormalUsage(unittest.TestCase):
             self.tp.message.value = "ThisMessageIsLongerThan32Characters."
 
         self.assertRaises(
-            legume.udp.messages.MessageError,
+            legume.messages.MessageError,
             setLongValue)
 
 # ========
@@ -157,8 +157,8 @@ class TestTestPacket1NormalUsage(unittest.TestCase):
 class TestClientConnectionToServer(unittest.TestCase):
     def testRunSingleClient(self):
         PORT = getRandomPort()
-        c = legume.udp.Client()
-        s = legume.udp.Server()
+        c = legume.Client()
+        s = legume.Server()
 
         s.listen(('', PORT))
         c.connect(('localhost', PORT))
@@ -171,9 +171,9 @@ class TestClientConnectionToServer(unittest.TestCase):
 
     def testRunTwoClients(self):
         PORT = getRandomPort()
-        c1 = legume.udp.Client()
-        c2 = legume.udp.Client()
-        s = legume.udp.Server()
+        c1 = legume.Client()
+        c2 = legume.Client()
+        s = legume.Server()
 
         s.listen(('', PORT))
         c1.connect(('localhost', PORT))
@@ -195,8 +195,8 @@ class TestClientConnectionToServer(unittest.TestCase):
 class TestConnectRequest(unittest.TestCase):
     def setUp(self):
         self.serverPort = getRandomPort()
-        self.server = legume.udp.Server()
-        self.client = legume.udp.Client()
+        self.server = legume.Server()
+        self.client = legume.Client()
 
     def connectEndpoints(self):
         self.server.listen(('', self.serverPort))
@@ -246,8 +246,8 @@ class TestGracefulDisconnect(unittest.TestCase):
     '''
     def setUp(self):
         self.serverPort = getRandomPort()
-        self.server = legume.udp.Server()
-        self.client = legume.udp.Client()
+        self.server = legume.Server()
+        self.client = legume.Client()
         self.got_disconnect_message = False
 
     def connectEndpoints(self):
@@ -285,26 +285,26 @@ class TestGracefulDisconnect(unittest.TestCase):
 
 # ========
 
-class MessagePacketOldFormat(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+3
+class MessagePacketOldFormat(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+3
     def __init__(self):
-        legume.udp.messages.BaseMessage.__init__(self,
-            legume.udp.messages.MessageValue(
+        legume.messages.BaseMessage.__init__(self,
+            legume.messages.MessageValue(
                 'message', 'string', 'Hello World!', max_length=32))
 
-class MessagePacket(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+3
+class MessagePacket(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+3
     MessageValues = {
         'message' : 'string 32'
         }
 
 class TestServerToClientMessage(unittest.TestCase):
     def setUp(self):
-        self.mf = legume.udp.messages.MessageFactory()
+        self.mf = legume.messages.MessageFactory()
         self.mf.add(MessagePacket)
         self.serverPort = getRandomPort()
-        self.server = legume.udp.Server(self.mf)
-        self.client = legume.udp.Client(self.mf)
+        self.server = legume.Server(self.mf)
+        self.client = legume.Client(self.mf)
         self.peer_address = None
         self.message_to_send = "WHY HELLO THERE!"
         self.received_message = None
@@ -355,24 +355,24 @@ class TestServerToClientMessage(unittest.TestCase):
 
 
 
-class TestPacket2(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+2
+class TestPacket2(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+2
     def __init__(self):
-        legume.udp.messages.BaseMessage.__init__(self)
+        legume.messages.BaseMessage.__init__(self)
         self.addValue('message', 'string', 'Hello World!', max_length=32)
 
-class TestPacket2SameID(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+2
+class TestPacket2SameID(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+2
     def __init__(self):
-        legume.udp.messages.BaseMessage.__init__(self)
+        legume.messages.BaseMessage.__init__(self)
         self.addValue('message', 'string', 'Hello World!', max_length=32)
 
 class TestMessageFactory(unittest.TestCase):
     def setUp(self):
-        self.mf = legume.udp.messages.MessageFactory()
+        self.mf = legume.messages.MessageFactory()
 
     def testMessageFactoryHasBaseMessagesByDefault(self):
-        for pname, pclass in legume.udp.messages.messages.iteritems():
+        for pname, pclass in legume.messages.messages.iteritems():
             self.assertEquals(self.mf.get_by_name(pname), pclass)
 
     def testMessageFactoryAddTestPacket2(self):
@@ -383,7 +383,7 @@ class TestMessageFactory(unittest.TestCase):
         def willfail():
             self.mf.add(TestPacket2)
             self.mf.add(TestPacket2SameID)
-        self.assertRaises(legume.udp.messages.MessageError, willfail)
+        self.assertRaises(legume.messages.MessageError, willfail)
 
     def testMessageFactoryCanAddMultiplePackets(self):
         self.mf.add(TestPacket1)
@@ -393,13 +393,13 @@ class TestMessageFactory(unittest.TestCase):
         def willfail():
             self.mf.add(TestPacket2)
             self.mf.add(TestPacket2)
-        self.assertRaises(legume.udp.messages.MessageError, willfail)
+        self.assertRaises(legume.messages.MessageError, willfail)
 
     def testMessageFactoryNotJustReturningRubbish(self):
         self.mf.add(TestPacket2)
         def willfail():
             self.mf.get_by_name('ThisPacketIsMakeBelieve')
-        self.assertRaises(legume.udp.messages.MessageError, willfail)
+        self.assertRaises(legume.messages.MessageError, willfail)
 
     def testMessageFactoryGetById(self):
         self.mf.add(TestPacket2)
@@ -410,19 +410,19 @@ class TestMessageFactory(unittest.TestCase):
     def testMessageFactoryGetByIdBadId(self):
         def willfail():
             self.mf.get_by_id(423984723)
-        self.assertRaises(legume.udp.messages.MessageError, willfail)
+        self.assertRaises(legume.messages.MessageError, willfail)
 
     def testGetBuiltinPacketById(self):
         self.assertEquals(
-            legume.udp.messages.ConnectRequest,
-            self.mf.get_by_id(legume.udp.messages.ConnectRequest.MessageTypeID))
+            legume.messages.ConnectRequest,
+            self.mf.get_by_id(legume.messages.ConnectRequest.MessageTypeID))
 
 class TestDisconnectAll(unittest.TestCase):
     def setUp(self):
         self.port = getRandomPort()
-        self.server = legume.udp.Server()
-        self.client1 = legume.udp.Client()
-        self.client2 = legume.udp.Client()
+        self.server = legume.Server()
+        self.client1 = legume.Client()
+        self.client2 = legume.Client()
         self.on_disconnect_count = 0
 
         self.client1.OnDisconnect += self.Client_OnDisconnect

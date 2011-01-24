@@ -21,7 +21,7 @@ def getRandomPort():
 
 class TestClientMetricsInterface(unittest.TestCase):
     def setUp(self):
-        self.client = legume.udp.Client()
+        self.client = legume.Client()
 
     def testReorderQueue(self):
         self.assert_(self.client.reorder_queue >= 0)
@@ -43,8 +43,8 @@ class TestClientMetricsInterface(unittest.TestCase):
     def testKeepAliveInterface(self):
         self.assert_(self.client.keepalive_count >= 0)
 
-class ExampleMessage(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+1
+class ExampleMessage(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+1
     MessageValues = {
         'param1':'int',
         'param2':'varstring'}
@@ -52,10 +52,10 @@ class ExampleMessage(legume.udp.messages.BaseMessage):
 class TestMetrics(unittest.TestCase):
     def setUp(self):
         self.port = getRandomPort()
-        self.message_factory = legume.udp.messages.MessageFactory()
+        self.message_factory = legume.messages.MessageFactory()
         self.message_factory.add(ExampleMessage)
-        self.server = legume.udp.Server(self.message_factory)
-        self.client = legume.udp.Client(self.message_factory)
+        self.server = legume.Server(self.message_factory)
+        self.client = legume.Client(self.message_factory)
 
         self.server.listen((HOST, self.port))
         self.client.connect((HOST, self.port))

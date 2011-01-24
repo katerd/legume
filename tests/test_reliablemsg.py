@@ -22,24 +22,24 @@ class SendMetrics(object):
         self.sent = 0
         self.recv = 0
 
-class ReliableMessage(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+10
+class ReliableMessage(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+10
     MessageValues = {
         'param1':'int'}
 
-class ChaffMessage(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+11
+class ChaffMessage(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+11
     MessageValues = {
         'str':'varstring'}
 
 class TestReliableMessage(unittest.TestCase):
     def setUp(self):
         self.port = getRandomPort()
-        self.message_factory = legume.udp.messages.MessageFactory()
+        self.message_factory = legume.messages.MessageFactory()
         self.message_factory.add(ReliableMessage)
         self.message_factory.add(ChaffMessage)
-        self.server = legume.udp.Server(self.message_factory)
-        self.client = legume.udp.Client(self.message_factory)
+        self.server = legume.Server(self.message_factory)
+        self.client = legume.Client(self.message_factory)
 
         self.server.listen((HOST, self.port))
         self.client.connect((HOST, self.port))
