@@ -13,6 +13,7 @@ from pingsampler import PingSampler
 from bitfield import bitfield
 from bytebuffer import ByteBuffer
 import messages
+import errno
 
 PING_REQUEST_FREQUENCY = 2.0
 CONNECTION_LOSS = 0
@@ -431,7 +432,7 @@ class Connection(object):
                 if message.last_send_attempt_timestamp is not None:
                     if ((message.last_send_attempt_timestamp +
                       self._transport_latency) > time.time()):
-                        self._log.debug('Requires ack cant send yet')
+                        self._log.debug('Waiting for ack.')
                         continue
 
             if packet_size + message.length <= self.MTU:
@@ -494,15 +495,20 @@ class Connection(object):
             if not packet:
                 break
 
-            if CONNECTION_LOSS > 0:
-                if random.randint(1, 100) > CONNECTION_LOSS:
+            if ((CONNECTION_LOSS == 0) or (random.randint(1, 100) > CONNECTION_LOSS)):
+                try:
                     bytes_sent = sock.sendto(packet, 0, address)
                     self._out_packets += 1
-                else:
-                    self._log.info('CONNECTION_LOSS override')
+                except socket.error, e:
+                    # HACK: ewouldblocks are ignored and the packet is silently
+                    # discarded. Packet sending should be re-written to
+                    # only remove messages from the send queue if the socket
+                    # operation completes successfully.
+                    errornum = e[0]
+                    if errornum != errno.EWOULDBLOCK:
+                        raise
             else:
-                bytes_sent = sock.sendto(packet, 0, address)
-                self._out_packets += 1
+                self._log.info('Simulated packet loss')
 
             self._log.info('Sent UDP packet %d bytes in length' % len(packet))
 
