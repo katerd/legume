@@ -131,8 +131,8 @@ class Connection(object):
 
     def update(self):
         '''
-        This method sends any packets that are in the output buffer and
-        reads any packets that have been recieved.
+        Send any packets that are in the output buffer and read
+        any packets that have been received.
         '''
         try:
             self.parent.do_read(self._on_socket_data)

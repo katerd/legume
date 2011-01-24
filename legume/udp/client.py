@@ -1,59 +1,59 @@
 # legume. Copyright 2009-2011 Dale Reidy. All rights reserved.
 # See LICENSE for details.
 
-'''A `Client` manages the connection to a `Server` instance elsewhere.
-
-Creating an instance of a `Client` and connecting to a server is done
-as shown in the minimalist example below::
-
-    client = Client()
-    # Server is running on localhost port 9000
-    client.connect(('localhost', 9000))
-
-    # This loop ensures that .update() is called.
-    while True:
-        client.update()
-        # Add a small time delay to prevent pegging the CPU.
-        time.sleep(0.0001)
-
-The `Client` has a number of events that can be hooked into that provide
-notifications of data sent from the server and state changes. An event
-consists of the sender and the argument(in the example below, this
-is the message), eg::
-
-    def my_message_handler(sender, message):
-        print "The greeting reads: %s" % message.greeting.value
-
-    my_client.OnMessage += my_message_handler
-
-For the `Client.OnMessage` handler example above the argument part of the
-event received is a re-assembled instance of the message that was sent, and
-the greeting field in the message is obtained via
-the fields `value` attribute.
-
-* `Client.OnConnectRequestAccepted` - Fired when a `Client.connect` request
-    has been responded to by the server allowing the connection.
-* `Client.OnConnectRequestRejected` - Fired when a `Client.connect` request
-    has been responded to by the server deneying the connection.
-* `Client.OnMessage` - Fired when a message is receieved from the server.
-    See above example.
-* `Client.OnError` - An error has occured. The event argument is a string
-    detailing the error.
-* `Client.OnDisconnect` - The connection was gracefully closed by the
-    Server. If the connection was severed due to a time-out, the
-    `Client.OnError` event would fire.
-
-'''
 __docformat__ = 'restructuredtext'
 
 import logging
 import messages
 import netshared
+import metrics
 from legume.servicelocator import Service
 from legume.nevent import Event, NEventError
 from legume.exceptions import ClientError, ArgumentError
 
-class Client(netshared.NetworkEndpoint):
+class Client(netshared.NetworkEndpoint, metrics.Metrics):
+    '''A `Client` manages the connection to a `Server` instance elsewhere.
+
+    Creating an instance of a `Client` and connecting to a server is done
+    as shown in the minimalist example below::
+
+        client = Client()
+        # Server is running on localhost port 9000
+        client.connect(('localhost', 9000))
+
+        # This loop ensures that .update() is called.
+        while True:
+            client.update()
+            # Add a small time delay to prevent pegging the CPU.
+            time.sleep(0.0001)
+
+    The `Client` has a number of events that can be hooked into that provide
+    notifications of data sent from the server and state changes. An event
+    consists of the sender and the argument(in the example below, this
+    is the message), eg::
+
+        def my_message_handler(sender, message):
+            print "The greeting reads: %s" % message.greeting.value
+
+        my_client.OnMessage += my_message_handler
+
+    For the `Client.OnMessage` handler example above the argument part of the
+    event received is a re-assembled instance of the message that was sent, and
+    the greeting field in the message is obtained via
+    the fields `value` attribute.
+
+    * `Client.OnConnectRequestAccepted` - Fired when a `Client.connect` request
+        has been responded to by the server allowing the connection.
+    * `Client.OnConnectRequestRejected` - Fired when a `Client.connect` request
+        has been responded to by the server deneying the connection.
+    * `Client.OnMessage` - Fired when a message is receieved from the server.
+        See above example.
+    * `Client.OnError` - An error has occured. The event argument is a string
+        detailing the error.
+    * `Client.OnDisconnect` - The connection was gracefully closed by the
+        Server. If the connection was severed due to a time-out, the
+        `Client.OnError` event would fire.
+    '''
 
     _log = logging.getLogger('legume.client')
 
@@ -178,8 +178,8 @@ class Client(netshared.NetworkEndpoint):
 
         :Parameters:
             address : (host, port)
-                Host address. If the port is invalid an ArgumentError
-                exception will be raised.
+                Host address. An ArgumentError exception will be raised for
+                an invalid address.
         '''
         if self.is_active():
             raise ClientError(

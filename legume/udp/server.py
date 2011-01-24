@@ -24,7 +24,7 @@ class Server(netshared.NetworkEndpoint):
         instance::
 
             mf = legume.udp.messages.MessageFactory()
-            server = legume.udp.Server(message_factory=pf)
+            server = legume.udp.Server(message_factory=mf)
         '''
         netshared.NetworkEndpoint.__init__(self, message_factory)
         self._peers = {}
@@ -114,10 +114,10 @@ class Server(netshared.NetworkEndpoint):
         '''Send a non-reliable packet to all connected peers.
         packet is an instance of a legume.message.BaseMessage subclass::
 
-            msg = ExampleMessage()
-            msg.chat_message.value = "Hello!"
-            msg.sender.value = "@X3"
-            server.send_messageToAll(msg_packet)
+            message = ExampleMessage()
+            message.chat_message.value = "Hello!"
+            message.sender.value = "@X3"
+            server.send_messageToAll(message)
         '''
         for peer in self._peers.itervalues():
             peer.send_message(message)

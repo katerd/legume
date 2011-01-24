@@ -6,12 +6,13 @@ __docformat__ = 'restructuredtext'
 import logging
 import legume.timing as time
 import netshared
+import metrics
 from legume.servicelocator import Service
 from legume.nevent import Event
 
 LOG = logging.getLogger('legume.peer')
 
-class Peer(object):
+class Peer(metrics.Metrics):
     '''
     A connection to the server. Each connected Client has a paired
     Peer object instance on the server.
