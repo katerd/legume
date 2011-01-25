@@ -67,7 +67,7 @@ class TestReliableMessage(unittest.TestCase):
         for x in xrange(MESSAGE_COUNT):
             msg = ReliableMessage()
             msg.param1.value = x
-            self.server.send_reliable_messageToAll(msg)
+            self.server.send_reliable_message_to_all(msg)
             self.send_count += 1
             self.update()
 
@@ -109,7 +109,7 @@ class TestReliableMessage(unittest.TestCase):
             msg.param1.value = x
             self.client.send_reliable_message(msg)
             self.client_to_server.sent += 1
-            self.server.send_reliable_messageToAll(msg)
+            self.server.send_reliable_message_to_all(msg)
             self.server_to_client.sent += 1
             self.update()
         self.update()
@@ -162,7 +162,7 @@ class TestReliableMessage(unittest.TestCase):
         for x in xrange(MESSAGE_COUNT):
             msg = ReliableMessage()
             msg.param1.value = x
-            self.server.send_reliable_messageToAll(msg)
+            self.server.send_reliable_message_to_all(msg)
             self.send_count += 1
 
             chaff = ChaffMessage()
@@ -193,7 +193,7 @@ class TestReliableMessage(unittest.TestCase):
             msg.param1.value = x
             self.client.send_reliable_message(msg)
             self.client_to_server.sent += 1
-            self.server.send_reliable_messageToAll(msg)
+            self.server.send_reliable_message_to_all(msg)
             self.server_to_client.sent += 1
 
             chaff = ChaffMessage()

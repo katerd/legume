@@ -219,7 +219,7 @@ class TestEvents(unittest.TestCase):
         example_message = ExampleMessage()
         example_message.message.value = "HITHERE"
 
-        self.server.send_reliable_messageToAll(example_message)
+        self.server.send_reliable_message_to_all(example_message)
 
         for x in xrange(ITERATIONS):
             self.update()

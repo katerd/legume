@@ -122,7 +122,7 @@ class Server(netshared.NetworkEndpoint):
         for peer in self._peers.itervalues():
             peer.send_message(message)
 
-    def send_reliable_messageToAll(self, message):
+    def send_reliable_message_to_all(self, message):
         '''Send a reliable message to all connected peers. message is an
         instance of a legume.udp.message.BaseMessage subclass.
         '''
