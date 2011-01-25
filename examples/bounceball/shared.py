@@ -19,8 +19,8 @@ PHYSICS_RATE = 0.01
 PHYSICS_FRAMES_PER_SECOND = 1.0 / PHYSICS_RATE
 print 'Physics update rate:', PHYSICS_FRAMES_PER_SECOND
 
-class BallUpdate(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+1
+class BallUpdate(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+1
     MessageValues = {
         'ball_id' : 'int',
         'frame_number' : 'int',
@@ -29,14 +29,14 @@ class BallUpdate(legume.udp.messages.BaseMessage):
         'vx' : 'int',
         'vy' : 'int'}
 
-class CreateBallCommand(legume.udp.messages.BaseMessage):
-    MessageTypeID = legume.udp.messages.BASE_MESSAGETYPEID_USER+2
+class CreateBallCommand(legume.messages.BaseMessage):
+    MessageTypeID = legume.messages.BASE_MESSAGETYPEID_USER+2
     MessageValues = {
         'x' : 'int',
         'y' : 'int'}
 
-legume.udp.messages.message_factory.add(BallUpdate)
-legume.udp.messages.message_factory.add(CreateBallCommand)
+legume.messages.message_factory.add(BallUpdate)
+legume.messages.message_factory.add(CreateBallCommand)
 
 class BallEnvironment(object):
     def __init__(self):
@@ -109,7 +109,7 @@ class ServerBallEnvironment(BallEnvironment):
     def send_updates(self, server):
         for ball in self._balls.itervalues():
             print('Sending update for ball # %s' % ball.ball_id)
-            server.send_messageToAll(ball.get_message())
+            server.send_reliable_message_to_all(ball.get_message())
 
     def send_initial_state(self, endpoint):
         for ball in self._balls.itervalues():

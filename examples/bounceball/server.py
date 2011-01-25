@@ -7,7 +7,7 @@ import shared
 class BallServer(shared.ServerBallEnvironment):
     def __init__(self):
         shared.ServerBallEnvironment.__init__(self)
-        self._server = legume.udp.Server()
+        self._server = legume.Server()
         self._server.OnConnectRequest += self.join_request_handler
         self._server.OnMessage += self.message_handler
         self._update_timer = time.time()

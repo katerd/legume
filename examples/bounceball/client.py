@@ -16,14 +16,14 @@ class BallClient(shared.ClientBallEnvironment):
     def __init__(self):
         self.running = True
         shared.ClientBallEnvironment.__init__(self)
-        self._client = legume.udp.Client()
+        self._client = legume.Client()
         self._client.OnMessage += self.message_handler
         self.lastdelta = time.time()
         self.lock = threading.Lock()
         self.ball_positions = None
 
     def message_handler(self, sender, args):
-        if legume.udp.messages.message_factory.is_a(args, 'BallUpdate'):
+        if legume.messages.message_factory.is_a(args, 'BallUpdate'):
             self.load_ball_from_message(args)
         else:
             print 'Message: %s' % args
@@ -77,8 +77,8 @@ def main():
 
     @w.event
     def on_mouse_press(x, y, b, m):
-        print b
         if b == 4: # right click
+            print 'Clicked'
             client.lock.acquire()
             client.spawn_ball(client._client, (x*x_ratio, y*y_ratio))
             client.lock.release()
