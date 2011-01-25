@@ -504,7 +504,7 @@ class Connection(object):
                 try:
                     bytes_sent = sock.sendto(packet, 0, address)
                     self._out_packets += 1
-                except socket.error, e:
+                except IOError, e:
                     # HACK: ewouldblocks are ignored and the packet is silently
                     # discarded. Packet sending should be re-written to
                     # only remove messages from the send queue if the socket
