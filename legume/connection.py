@@ -42,6 +42,7 @@ class Connection(object):
     MTU = 1400
     MESSAGE_TRANSPORT_HEADER = 'HHB'
     RECENT_MESSAGE_LIST_SIZE = 1000
+    MINIMUM_RESEND_DELAY_MS = 5
 
     _log = logging.getLogger('legume.Connection')
 
@@ -144,7 +145,6 @@ class Connection(object):
         if self._ping_meter.has_estimate():
             self._transport_latency = self._ping_meter.get_ping()
 
-        self._log.debug('buffer update for %s' % self.parent)
         read_messages = self._update(
                         self.parent._socket, self.parent._address)
 
@@ -348,6 +348,8 @@ class Connection(object):
 
         while not byte_buffer.is_empty():
 
+            self._log.error('stuck in a loop')
+
             message_id, sequence_number, message_flags = \
                 byte_buffer.read_struct(self.MESSAGE_TRANSPORT_HEADER)
 
@@ -379,12 +381,17 @@ class Connection(object):
 
         self._in_bytes += len(packet_bytes)
 
+        self._log.debug('parsed %d messages from packet' % len(messages_to_read))
+
         for message in messages_to_read:
             if not message.message_id in self._recent_message_ids:
+                self._log.debug('Message ordered flag %s' % str(message.is_ordered))
                 if message.is_ordered:
                     if self._can_read_inorder_message(seqNum):
+                        self._log.debug('Message cannot be read')
                         self._insert_message(message)
                     else:
+                        self._log.debug('Message can be read')
                         self._incoming_out_of_sequence_messages.append(message)
                         self._recent_message_ids.append(message.message_id)
 
@@ -434,9 +441,23 @@ class Connection(object):
         for message in self._outgoing:
 
             if message.require_ack:
+
+                # a minimum resend delay is required for two reasons:
+                # 1. deadlock with a 0ms latency connection causes _do_write
+                #    to never exit as _create_packet always returns data.
+                # 2. resending every 0ms is just plain stupid.
+
+                t = time.time()
+                resend_delay = max(self.MINIMUM_RESEND_DELAY_MS, self._transport_latency)
+
+                self._log.debug('LSAT: %s' % str(message.last_send_attempt_timestamp))
+                self._log.debug('l8nc: %s' % str(self._transport_latency))
+                self._log.debug('time: %s' % t)
+                self._log.debug('rsnd: %s' % resend_delay)
+
                 if message.last_send_attempt_timestamp is not None:
                     if ((message.last_send_attempt_timestamp +
-                      self._transport_latency) > time.time()):
+                      resend_delay) >= t):
                         self._log.debug('Waiting for ack.')
                         continue
 
@@ -447,8 +468,7 @@ class Connection(object):
                 message.last_send_attempt_timestamp = time.time()
                 sent_messages.append(message)
             else:
-                self._log.debug(
-                    'Message too fat, maybe he\'ll get on the next bus')
+                self._log.debug('packet at MTU limit.')
 
         for sent_message in sent_messages:
             # Packets that require an ack are only removed
@@ -497,7 +517,9 @@ class Connection(object):
     def _do_write(self, sock, address):
         while True:
             packet = self._create_packet()
+            self._log.debug('Create packet result = %s' % str(packet))
             if not packet:
+                self._log.debug('Leaving _do_write')
                 break
 
             if ((CONNECTION_LOSS == 0) or (random.randint(1, 100) > CONNECTION_LOSS)):

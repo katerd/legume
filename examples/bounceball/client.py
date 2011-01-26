@@ -12,10 +12,10 @@ REMOTEHOST = 'aura.psyogenix.co.uk'
 
 VSYNC = True
 
-class BallClient(shared.ClientBallEnvironment):
+class BallClient(shared.BallEnvironment):
     def __init__(self):
         self.running = True
-        shared.ClientBallEnvironment.__init__(self)
+        shared.BallEnvironment.__init__(self)
         self._client = legume.Client()
         self._client.OnMessage += self.message_handler
         self.lastdelta = time.time()
@@ -46,6 +46,27 @@ class BallClient(shared.ClientBallEnvironment):
                 pass
                 self.lock.release()
             time.sleep(0.0001)
+        print('Exited go')
+
+    def force_resync(self):
+        for ball in self._balls.itervalues():
+            ball.force_resync = True
+
+    def load_ball_from_message(self, message):
+        print('Got status for ball %s' % message.ball_id.value)
+        if message.ball_id.value not in self._balls:
+            print 'Creating new ball'
+            new_ball = shared.Ball(self)
+            new_ball.load_from_message(message)
+            self.insert_ball(new_ball)
+        else:
+            self._balls[message.ball_id.value].load_from_message(message)
+
+    def spawn_ball(self, endpoint, position):
+        message = shared.CreateBallCommand()
+        message.x.value = position[0]
+        message.y.value = position[1]
+        endpoint.send_message(message)
 
     def showlatency(self, dt):
         print('latency: %3.3f    fps:%3.3f' % (
@@ -115,4 +136,6 @@ def main():
     client.running = False
 
 if __name__ == '__main__':
+    import logging
+    logging.basicConfig(filename='client.log', level=logging.DEBUG)
     main()
