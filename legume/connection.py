@@ -42,7 +42,7 @@ class Connection(object):
     MTU = 1400
     MESSAGE_TRANSPORT_HEADER = 'HHB'
     RECENT_MESSAGE_LIST_SIZE = 1000
-    MINIMUM_RESEND_DELAY_MS = 5
+    MINIMUM_RESEND_DELAY_MS = 10 / 1000.0
 
     _log = logging.getLogger('legume.Connection')
 
@@ -197,7 +197,7 @@ class Connection(object):
                 accept = True
 
                 if (message.protocol.value != netshared.PROTOCOL_VERSION):
-                    self._log.warning('Invalid protocol version for client')
+                    self._log.error('Invalid protocol version for client')
                     accept = False
                 if self.OnConnectRequest(self.parent, message) is False:
                     accept = False
@@ -348,8 +348,6 @@ class Connection(object):
 
         while not byte_buffer.is_empty():
 
-            self._log.error('stuck in a loop')
-
             message_id, sequence_number, message_flags = \
                 byte_buffer.read_struct(self.MESSAGE_TRANSPORT_HEADER)
 
@@ -388,10 +386,8 @@ class Connection(object):
                 self._log.debug('Message ordered flag %s' % str(message.is_ordered))
                 if message.is_ordered:
                     if self._can_read_inorder_message(seqNum):
-                        self._log.debug('Message cannot be read')
                         self._insert_message(message)
                     else:
-                        self._log.debug('Message can be read')
                         self._incoming_out_of_sequence_messages.append(message)
                         self._recent_message_ids.append(message.message_id)
 
@@ -515,11 +511,17 @@ class Connection(object):
         return read_messages
 
     def _do_write(self, sock, address):
+        # TODO: combine _create_packet into this method, eg:
+        #   while has_messages:
+        #     add_message_to_packet
+        #     is packet_full?
+        #       send_packet
+        #   is packet_partially_full?
+        #     send_packet
+
         while True:
             packet = self._create_packet()
-            self._log.debug('Create packet result = %s' % str(packet))
             if not packet:
-                self._log.debug('Leaving _do_write')
                 break
 
             if ((CONNECTION_LOSS == 0) or (random.randint(1, 100) > CONNECTION_LOSS)):
