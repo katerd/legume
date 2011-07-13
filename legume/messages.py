@@ -4,13 +4,13 @@
 __docformat__ = 'restructuredtext'
 
 '''
-A message packet class is a subclass of legume.udp.messages.BaseMessage with two
+A message class is a subclass of legume.messages.BaseMessage with two
 class attributes defined:
 
-    * MessageTypeID - An integer uniquely identifying the packet type. The
-        allowed range for application packets is 1 to BASE_MESSAGETYPEID_SYSTEM-1.
-    * MessageValues - A dictionary of the values stored within the packet where
-        the key is the name of the packet value, and the value is the type.
+    * MessageTypeID - An integer uniquely identifying the message type. The
+        allowed range for application messages is 1 to BASE_MESSAGETYPEID_SYSTEM-1.
+    * MessageValues - A dictionary of the values stored within the message where
+        the key is the name of the message value, and the value is the type.
 
 Type names available for MessageValues:
     * 'int' - An integer
@@ -18,9 +18,9 @@ Type names available for MessageValues:
     * 'float' - A double precision floating point.
     * 'bool' - A boolean (a 1 byte short)
 
-An example packet definition::
+An example message definition::
 
-    class ChatMessage(legume.udp.messages.BaseMessage):
+    class ChatMessage(legume.messages.BaseMessage):
         MessageTypeID = 1
         MessageValues = {
             'sender_name':'string 24',
@@ -28,29 +28,29 @@ An example packet definition::
             'channel':'string 24'
             }
 
-    # Adding a packet to a new packet_factory
-    packet_factory = legume.udp.packets.PacketFactory()
-    packet_factory.add(ChatMessage)
+    # Adding a message to a new message_factory
+    message_factory = legume.messages.MessageFactory()
+    message_factory.add(ChatMessage)
 
-    # and/or add it to the global packet factory
-    legume.udp.packets.packetFactory.add(ChatMessage)
+    # and/or add it to the global message factory
+    legume.messages.message_factory.add(ChatMessage)
 
-How to use this packet definition::
+How to use this message definition::
 
     # Note how this client uses the packet_factory the
-    # ChatMessage packet was added to.
-    client = legume.udp.Client(packet_factory)
+    # ChatMessage message was added to.
+    client = legume.Client(packet_factory)
 
     # ..snip..
 
-    # Create the packet
+    # Create the message
     cm = ChatMessage()
     cm.sender_name.value = 'JoeUser'
     cm.message.value = 'This is a test message.'
     cm.channel.value = 'newbies'
 
-    # send the packet to the server
-    client.sendPacket(cm)
+    # send the message to the server
+    client.send_message(cm)
 '''
 
 import struct

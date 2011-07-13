@@ -167,7 +167,7 @@ class TestReliableMessage(unittest.TestCase):
 
             chaff = ChaffMessage()
             chaff.str.value = "A" * random.randint(1, 1000)
-            self.server.send_messageToAll(chaff)
+            self.server.send_message_to_all(chaff)
 
             self.update()
         self.update()
@@ -200,7 +200,7 @@ class TestReliableMessage(unittest.TestCase):
             chaff.str.value = "A" * random.randint(1, 1000)
             self.client.send_message(chaff)
 
-            self.server.send_messageToAll(chaff)
+            self.server.send_message_to_all(chaff)
 
             self.update()
         self.update()

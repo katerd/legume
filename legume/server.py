@@ -23,8 +23,8 @@ class Server(netshared.NetworkEndpoint):
         parameter to specify an alternative to the global messages.message_factory
         instance::
 
-            mf = legume.udp.messages.MessageFactory()
-            server = legume.udp.Server(message_factory=mf)
+            mf = legume.messages.MessageFactory()
+            server = legume.Server(message_factory=mf)
         '''
         netshared.NetworkEndpoint.__init__(self, message_factory)
         self._peers = {}
@@ -77,7 +77,7 @@ class Server(netshared.NetworkEndpoint):
         This method change the class state to LISTENING::
 
             # Begin listening on port 4000 on all IP interfaces
-            server = legume.udp.Server()
+            server = legume.Server()
             server.listen(('', 4000))
         '''
         if self.is_active():
@@ -92,7 +92,7 @@ class Server(netshared.NetworkEndpoint):
         '''Pumps buffers and dispatches events. Call regularly to ensure
         buffers do not overfill or connections time-out::
 
-            server = legume.udp.Server()
+            server = legume.Server()
             server.listen(('', 4000))
 
             while True:
@@ -110,21 +110,21 @@ class Server(netshared.NetworkEndpoint):
 
         self._removePeers()
 
-    def send_messageToAll(self, message):
+    def send_message_to_all(self, message):
         '''Send a non-reliable packet to all connected peers.
         packet is an instance of a legume.message.BaseMessage subclass::
 
             message = ExampleMessage()
             message.chat_message.value = "Hello!"
             message.sender.value = "@X3"
-            server.send_messageToAll(message)
+            server.send_message_to_all(message)
         '''
         for peer in self._peers.itervalues():
             peer.send_message(message)
 
     def send_reliable_message_to_all(self, message):
         '''Send a reliable message to all connected peers. message is an
-        instance of a legume.udp.message.BaseMessage subclass.
+        instance of a legume.message.BaseMessage subclass.
         '''
         for peer in self._peers.itervalues():
             peer.send_reliable_message(message)
