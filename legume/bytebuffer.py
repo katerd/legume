@@ -1,3 +1,4 @@
+﻿# -*- coding: utf-8 -*-
 # legume. Copyright 2009-2010 Dale Reidy. All rights reserved.
 # See LICENSE for details.
 

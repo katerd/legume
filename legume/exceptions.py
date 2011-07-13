@@ -1,3 +1,4 @@
+﻿# -*- coding: utf-8 -*-
 class LegumeError(Exception): pass
 class ArgumentError(LegumeError): pass
 class NetworkEndpointError(LegumeError): pass

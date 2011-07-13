@@ -1,3 +1,7 @@
+﻿# -*- coding: utf-8 -*-
+# legume. Copyright 2009-2011 Dale Reidy. All rights reserved.
+# See LICENSE for details.
+
 import time as _time_builtin
 time = _time_builtin.time
 

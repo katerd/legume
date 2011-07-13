@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+ï»¿# -*- coding: utf-8 -*-
 #
 # bitfield manipulation
 #
-# By Sébastien Keim
+# By Sebastien Keim
 # http://code.activestate.com/recipes/113799/
 # Released under the PSF License
 #
