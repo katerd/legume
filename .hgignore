@@ -1,0 +1,4 @@
+glob:*.pyc
+glob:*.log
+glob:*.pyo
+glob:*.egg-info

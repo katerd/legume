@@ -1,0 +1,16 @@
+intro
+
+	The playground tests the interaction of player controlled avatars in a shared environment.
+
+design
+
+	~ To enter the game players must:
+		1. type in a name (the user's name is used by default for ease of testing).
+		2. click 'join game' or press enter.
+
+	~ The player's avatar is a circle with an arrow showing the direction the player is facing.
+	~ To move around players use the WSAD or arrow keys.
+	~ To look around players use the mouse - the direction they are facing does not relate to their
+		direction of movement.
+	~ To shoot their gun the player clicks the left mouse button.
+

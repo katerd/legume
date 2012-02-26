@@ -1,0 +1,35 @@
+Shared state = 400x400 pixel world containing a bouncing ball.
+
+- The server sends updates on the ball:
+	- Time reference i
+	- Position Px, Py
+	- Velocity Vx, Vy
+- The client updates the position of the ball and interpolates it's movement.
+
+
+Client steps:
+
+1. Connect to server
+2. Recieve i0
+3. Interpolate ball movement
+4. Render ball
+5. Check for new position from server
+6. Move ball to updated position and interpolate to current frame
+7. Goto step 3
+
+Server steps:
+
+1. Accept client connection request
+2. Send i0
+3. Send balls position at current frame
+4. Calculate new position and velocity of ball within world
+5. Goto 3
+
+
+Messages:
+
+BallUpdate:
+	ball_id
+	frame_number
+	x, y
+	vx, vy
