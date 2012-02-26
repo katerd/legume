@@ -20,7 +20,7 @@ def main():
     print('Using host: %s' % host)
 
     t = time.time()
-    c = legume.udp.Client()
+    c = legume.Client()
     c.connect((host, PORT))
 
     while c.state != c.ERRORED:
