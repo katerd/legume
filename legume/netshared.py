@@ -56,11 +56,11 @@ class NetworkEndpoint(object):
         return self._socket
 
     def _shutdown_socket(self):
-        self._socket.shutdown(socket.SHUT_RDWR)
         self._socket.close()
 
     def _connect_socket(self, addr):
-        self._socket.connect(addr)
+        self._socket.bind(('', 0))
+        pass
 
     def _bind_socket(self, addr):
         self._socket.bind(addr)
