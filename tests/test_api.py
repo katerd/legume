@@ -1,4 +1,4 @@
-# legume. Copyright 2009-2011 Dale Reidy. All rights reserved.
+# legume. Copyright 2009-2013 Dale Reidy. All rights reserved.
 # See LICENSE for details.
 
 import logging

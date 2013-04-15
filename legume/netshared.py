@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 
-# legume. Copyright 2009-2011 Dale Reidy. All rights reserved.
+# legume. Copyright 2009-2013 Dale Reidy. All rights reserved.
 # See LICENSE for details.
 
 __docformat__ = 'restructuredtext'
