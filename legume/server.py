@@ -1,5 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
-# legume. Copyright 2009-2011 Dale Reidy. All rights reserved.
+# legume. Copyright 2009-2013 Dale Reidy. All rights reserved.
 # See LICENSE for details.
 
 __docformat__ = 'restructuredtext'
@@ -36,6 +36,7 @@ class Server(netshared.NetworkEndpoint):
         self._OnDisconnect = Event()
         self._OnError = Event()
         self._OnMessage = Event()
+        self._accept_new_connections = False
 
     # ------------- Properties -------------
 
@@ -53,6 +54,15 @@ class Server(netshared.NetworkEndpoint):
             peer for peer in self._peers.values()
             if peer.connected]
 
+    @property
+    def accept_new_connections(self):
+        '''Whether the server will accept new connections.'''
+        return self._accept_new_connections
+        
+    @accept_new_connections.setter
+    def accept_new_connections(self, value):
+        self._accept_new_connections = value
+            
     # ------------- Public Methods -------------
 
     def disconnect(self, peer_address):
@@ -88,6 +98,7 @@ class Server(netshared.NetworkEndpoint):
         self._bind_socket(address)
         self._address = address
         self._state = self.LISTENING
+        self._accept_new_connections = True
 
     def update(self):
         '''Pumps buffers and dispatches events. Call regularly to ensure
@@ -131,12 +142,15 @@ class Server(netshared.NetworkEndpoint):
             peer.send_reliable_message(message)
 
     # ------------- Private Methods -------------
-
+    
     def _on_socket_data(self, data, addr):
         self._log.debug(
             'Got data %s bytes in length from %s' %
             (str(len(data)), str(addr)))
 
+        if not addr in self._peers and not self._accept_new_connections:
+            return
+            
         if not addr in self._peers:
             new_peer = Service('Peer', {'parent':self, 'address':addr})
             self._peers[addr] = new_peer
